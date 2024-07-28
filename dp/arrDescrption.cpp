@@ -1,0 +1,96 @@
+//iamaryankr
+#include<bits/stdc++.h>
+using namespace std;
+
+#define pb push_back
+#define pob pop_back
+#define sq(x) x*x
+#define cube(x) x*x*x
+#define all(x) (x).begin(), (x).end()
+#define debugV(v) for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<endl;
+#define debug(x) cout<< #x << " = " << x << endl;
+#define debugMat(v) for(int i=0; i<v.size(); i++){ for(int j=0; j<v[0].size(); j++){ cout << v[i][j] << " ";} cout << nl;}
+#define nl "\n"
+#define ff first;
+#define ss second;
+
+typedef long double ld;
+typedef long long ll;
+typedef vector<long long> vll;
+typedef pair<int,int> pii;
+typedef pair<long long, long long> pll;
+typedef vector<pair<long long, long long>> vpll;
+typedef vector<pair<int,int>> vpii;
+typedef vector<int> vi;
+typedef vector<vector<int>> vvi;
+
+int gcd(int a, int b){ return (b ? gcd(b, a % b) : a); }
+int lcm(int a, int b){ return (a*b/gcd(a,b)); }
+
+int delrow[] = {-1, 0, 1, 0};
+int delcol[] = {0, 1, 0, -1};
+
+const int maxN = 5000000+1;
+const int MOD = 1e9+7;
+const int N = 2e5+1;
+
+//try thinking Binary search, Bit manipulation, Dp
+//jee standard Maths, greedy, Bfs, Dfs
+
+
+
+// 5 5 6 
+//if 0 at borders, simple case
+//else
+//for adj elements on each side
+// abs==1 , abs==0, abs==2
+//abs==0, 3 possible ans, check in range of m
+//abs==1, 2 possible ans, no need to check
+//abs==2, 1 ans only, no need to check
+
+
+bool valid(int x, int m){
+    return x>=1 && x<=m;
+}
+void solve() {
+    int n,m;
+    cin>>n>>m;
+    vi x(n);
+    for(int i=0; i<n ;i++) cin>>x[i];
+    
+    vector<vector<int>> dp(n+1, vector<int> (m+1, 0));
+    //dp[i][v] no of ways of building pref of size i
+    // s.t last ele of prefix is k
+    for(int i=1; i<=m; i++){
+        if(x[0]==i || x[0]==0) dp[1][i] = 1;
+    }
+    for(int i=2; i<=n; i++){
+        for(int k=1; k<=m; k++){
+            if(x[i-1]!=0 && x[i-1]!=k){
+                dp[i][k] = 0;
+                continue;
+            }
+            for(int prev=k-1; prev<=k+1; prev++){
+                if(!valid(prev, m)) continue;
+                dp[i][k] = (dp[i][k] + dp[i-1][prev])%MOD;
+            }
+        }
+    }
+    ll ans = 0;
+    for(int i=1; i<=m; i++) ans = (ans+dp[n][i])%MOD;
+    cout << ans << nl;
+}
+
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    cout << setprecision(12) << fixed;
+    int t = 1;
+    // cin >> t;
+    while (t--) {
+        solve();
+    }
+    return 0;
+}
