@@ -8,6 +8,7 @@ using namespace std;
 #define debugV(v) cout<<#v<<" = [ "; for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<"]"<<nl;
 #define debug(x) cout<< #x << " = " << x << endl;
 #define debugMat(v) for(int i=0; i<v.size(); i++){ for(int j=0; j<v[0].size(); j++){ cout << v[i][j] << " ";} cout << nl;}
+#define fr(i, val, n) for(int i=val; i<n; i++)
 #define nl "\n"
 #define ff first;
 #define ss second;
@@ -45,21 +46,23 @@ const ll INFF = 1e18;
 
 //DONT OVERTHINKKK//
 
+int findmax(int n){
+    string s = to_string(n);
+    int maxi = -1;
+    for(int i=0; i<s.size(); i++) maxi = max(maxi, (s[i]-'0'));
+    return maxi;
+}
 void solve(){
-    int n, x;
-    cin >> n >> x;
-    vi a(n);
-    for(int i=0; i<n; i++) cin >> a[i];
+    int n ; 
+    cin >> n;
+    vi dp(n+1, 0);
+    dp[0] = 0;
 
-    vector<int> dp(x+1, 0);
-    dp[0] = 1;
-
-    for(int sum=1; sum<=x; sum++){
-        for(int i=0; i<n; i++){
-            if(sum >= a[i]) dp[sum] = (dp[sum] + dp[sum-a[i]])%MOD;
-        }
+    for(int i=1; i<=n; i++){
+        int maxdig = findmax(i);
+        if(i>=maxdig) dp[i] = dp[i-maxdig]+1;
     }
-    cout << (dp[x]) << nl ;
+    cout << dp[n] << nl;
 }
    
 int main() {

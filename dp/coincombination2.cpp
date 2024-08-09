@@ -34,6 +34,25 @@ const int N = 2e5+1;
 
 //
 
+//this is just reversing the loop
+void solve(){
+    int n, x;
+    cin >> n >> x;
+    vi a(n);
+    for(int i=0; i<n; i++) cin >> a[i];
+
+    vector<int> dp(x+1, 0);
+    dp[0] = 1;
+
+    for(int i=0; i<n; i++){
+        for(int sum=0; sum<=x; sum++){
+            if(sum >= a[i]) dp[sum] = (dp[sum] + dp[sum-a[i]])%MOD;
+        }
+    }
+    cout << (dp[x]) << nl ;
+}
+
+//this is the normal approach of pick and notpick
 void solve() {
     int n, x;
     cin >> n >> x;

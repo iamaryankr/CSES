@@ -8,6 +8,7 @@ using namespace std;
 #define debugV(v) cout<<#v<<" = [ "; for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<"]"<<nl;
 #define debug(x) cout<< #x << " = " << x << endl;
 #define debugMat(v) for(int i=0; i<v.size(); i++){ for(int j=0; j<v[0].size(); j++){ cout << v[i][j] << " ";} cout << nl;}
+#define fr(i, a, n) for(int i=a; i<n; i++)
 #define nl "\n"
 #define ff first;
 #define ss second;
@@ -45,32 +46,71 @@ const ll INFF = 1e18;
 
 //DONT OVERTHINKKK//
 
+
+//counting inversions --> j < i => a[j] > a[i];
+class segTree{
+public:
+  int size=1;
+  vector<int> tree;
+  segTree(int n){
+    while(size < n){
+      size*=2 ;
+    }
+    tree.resize(2*size, 0);
+  }
+
+  int merge(int l, int r){
+    return l+r;
+  }
+  int query(int x, int low, int high, int l, int r){
+    if(low >= r || high <= l) return 0;
+    if(low >= l && high <= r) return tree[x];
+    int mid = (low+high)/2;
+    int lq = query(2*x+1, low, mid, l, r);
+    int rq = query(2*x+2, mid, high, l, r);
+    return merge(lq, rq);
+  }
+  int query(int l, int r){
+    return query(0, 0, size, l, r);
+  }
+
+  void update(int x, int low, int high, int i){
+    if(high-low == 1){
+      tree[x] = 1;
+      return; 
+    }
+    int mid = (low+high)/2 ;
+    if(i < mid) update(2*x+1, low, mid, i);
+    else update(2*x+2, mid, high, i);
+
+    tree[x] = merge(tree[2*x+1] , tree[2*x+2]);
+  }
+  void update(int i){
+    update(0, 0, size, i);
+  }
+};
+
 void solve(){
-    int n, x;
-    cin >> n >> x;
-    vi a(n);
-    for(int i=0; i<n; i++) cin >> a[i];
-
-    vector<int> dp(x+1, 0);
-    dp[0] = 1;
-
-    for(int sum=1; sum<=x; sum++){
-        for(int i=0; i<n; i++){
-            if(sum >= a[i]) dp[sum] = (dp[sum] + dp[sum-a[i]])%MOD;
-        }
-    }
-    cout << (dp[x]) << nl ;
+  int n;
+  cin >> n;
+  segTree st(n+1);
+  vector<int> a(n+1);
+  for(int i=1; i<=n; i++){
+    cin >> a[i];
+    cout << st.query(a[i], n+1) << " ";
+    st.update(a[i]);
+  }
+  cout << nl;
 }
-   
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
-    // cout << setprecision(12) << fixed;
-    int t = 1;
-    // cin >> t;
-    while (t--) {
-        solve();
-    }
-    return 0;
+  ios_base::sync_with_stdio(false);
+  cin.tie(0);
+  cout.tie(0);
+  // cout << setprecision(12) << fixed;
+  int t=1;
+  // cin >> t;
+  while (t--){
+    solve();
+  }
+  return 0;
 }

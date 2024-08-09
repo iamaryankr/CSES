@@ -8,6 +8,7 @@ using namespace std;
 #define debugV(v) cout<<#v<<" = [ "; for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<"]"<<nl;
 #define debug(x) cout<< #x << " = " << x << endl;
 #define debugMat(v) for(int i=0; i<v.size(); i++){ for(int j=0; j<v[0].size(); j++){ cout << v[i][j] << " ";} cout << nl;}
+#define fr(i, a, n) for(int i=a; i<n; i++)
 #define nl "\n"
 #define ff first;
 #define ss second;
@@ -44,24 +45,70 @@ const ll INFF = 1e18;
 
 
 //DONT OVERTHINKKK//
+class segTree {
+public:
+    int size = 1;
+    vector<ll> tree;
 
-void solve(){
-    int n, x;
-    cin >> n >> x;
-    vi a(n);
-    for(int i=0; i<n; i++) cin >> a[i];
-
-    vector<int> dp(x+1, 0);
-    dp[0] = 1;
-
-    for(int sum=1; sum<=x; sum++){
-        for(int i=0; i<n; i++){
-            if(sum >= a[i]) dp[sum] = (dp[sum] + dp[sum-a[i]])%MOD;
+    segTree(int n) {
+        while (size < n) {
+            size *= 2;
         }
+        tree.resize(2 * size);
     }
-    cout << (dp[x]) << nl ;
+
+    void add(int x, int low, int high, int l, int r, int v) {
+      if (low >= r || high <= l) return ;
+      if (low >= l && high <= r){
+        tree[x] += v;
+        return;
+      }
+
+      int mid = (low + high) / 2;
+      add(2*x + 1, low, mid, l, r, v);
+      add(2*x + 2, mid, high, l, r, v);
+    }
+
+    void add(int l, int r, int v) {
+      add(0, 0, size, l, r, v);
+    }
+
+
+    ll get(int i, int x, int low, int high){
+      if(high-low == 1) return tree[x];
+      
+      int mid = (low + high) / 2;
+      ll res ;
+      if (i < mid) res = get(i, 2*x + 1, low, mid);
+      else res = get(i, 2*x + 2, mid, high);
+
+      return res + tree[x];
+    }
+    ll get(int i){
+      return get(i, 0, 0, size);
+    }
+};
+
+void solve() {
+  int n,m;
+  cin>>n>>m;
+  segTree st(n);
+  while(m--){
+    int op;
+    cin>>op;
+    if(op==1){
+      int l,r,v;
+      cin>>l>>r>>v;
+      st.add(l,r,v);
+    }
+    else{
+      int i;
+      cin>>i;
+      cout << st.get(i) << nl;
+    }
+  }
 }
-   
+
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);

@@ -46,20 +46,17 @@ const ll INFF = 1e18;
 //DONT OVERTHINKKK//
 
 void solve(){
-    int n, x;
-    cin >> n >> x;
-    vi a(n);
+    int n, q;
+    cin >> n >> q;
+    vll a(n);
     for(int i=0; i<n; i++) cin >> a[i];
-
-    vector<int> dp(x+1, 0);
-    dp[0] = 1;
-
-    for(int sum=1; sum<=x; sum++){
-        for(int i=0; i<n; i++){
-            if(sum >= a[i]) dp[sum] = (dp[sum] + dp[sum-a[i]])%MOD;
-        }
+    vll pref(n+1, 0);
+    for(int i=0; i<n; i++) pref[i+1] = pref[i]+a[i];
+    while(q--){
+        int l, r;
+        cin >> l >> r;
+        cout << (pref[r]-pref[l-1]) << nl;
     }
-    cout << (dp[x]) << nl ;
 }
    
 int main() {

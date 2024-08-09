@@ -8,6 +8,7 @@ using namespace std;
 #define debugV(v) cout<<#v<<" = [ "; for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<"]"<<nl;
 #define debug(x) cout<< #x << " = " << x << endl;
 #define debugMat(v) for(int i=0; i<v.size(); i++){ for(int j=0; j<v[0].size(); j++){ cout << v[i][j] << " ";} cout << nl;}
+#define fr(i, a, n) for(int i=a; i<n; i++)
 #define nl "\n"
 #define ff first;
 #define ss second;
@@ -45,21 +46,47 @@ const ll INFF = 1e18;
 
 //DONT OVERTHINKKK//
 
-void solve(){
-    int n, x;
-    cin >> n >> x;
-    vi a(n);
-    for(int i=0; i<n; i++) cin >> a[i];
+const int mxN = 2e5+2;
+vector<int> adj[mxN];
+int dia = 1;
 
-    vector<int> dp(x+1, 0);
-    dp[0] = 1;
+int dfs(int node, int par){
+    vector<int> v ;
+    bool leaf = 1;
 
-    for(int sum=1; sum<=x; sum++){
-        for(int i=0; i<n; i++){
-            if(sum >= a[i]) dp[sum] = (dp[sum] + dp[sum-a[i]])%MOD;
+    for(auto it : adj[node]) {
+        if(it != par) {
+            leaf = 0 ;
+            int t = dfs(it, node) ;
+            v.push_back(t) ;
         }
     }
-    cout << (dp[x]) << nl ;
+    if(leaf) return 1 ; 
+    
+    sort(all(v)) ;
+    int n = v.size();
+    int l = (n-1 >= 0) ? v[n-1] : 0 ;
+    int r = (n-2 >= 0) ? v[n-2] : 0 ;
+
+    int temp = max(l, r)+1; // when that node passes the info
+    int ans = max(temp, 1 + l + r) ; //when node is ans itself
+
+    dia = max(dia, ans);
+
+    return temp; //return node passing the info
+}
+void solve(){
+    int n;
+    cin >> n;
+    for(int i=0; i<n-1; i++){
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    dfs(1, 0); 
+    cout << dia-1 << nl;
 }
    
 int main() {
