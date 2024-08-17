@@ -13,8 +13,8 @@ using namespace std;
 #define ff first;
 #define ss second;
 #define yes cout<<"YES"<<nl
-#define no cout<<"NO"<<nl
- 
+#define no cout<<"NO"<<nl 
+
 typedef long double ld;
 typedef long long ll;
 typedef vector<ll> vll;
@@ -27,6 +27,7 @@ typedef vector<vi> vvi;
 typedef vector<vll> vvll;
 typedef map<int,int> mii;
  
+
 int gcd(int a, int b){ return (b ? gcd(b, a % b) : a); }
 int lcm(int a, int b){ return (a*b/gcd(a,b)); }
  
@@ -47,50 +48,48 @@ const ll INFF = 1e18;
  
  
 //DONT OVERTHINKKK 
- 
-void solve(){
-  int n, m, k;
-  cin >> n >> m >> k;
-  vector<pii> adj[n];
+const int mxN = 2e5 + 5;
+vector<int> adj[mxN];
+vector<ll> ans(mxN);
+vector<ll> subTreeSize(mxN, 1);
+vector<ll> subTreeAns(mxN);
 
-  while(m--){
-    int u, v, wt;
-    cin >> u >> v >> wt;
-    u--, v--;
-    adj[u].pb({v, wt});
-  }
-  priority_queue<pll, vpll, greater<pll>> pq; // for dijsktra
-  priority_queue<ll> dist[n]; // dist[] is a pq itself
-
-  pq.push({0, 0});
-  dist[0].push(0);
-  
-  while(!pq.empty()){
-    ll dis = pq.top().first;
-    int u = pq.top().second;
-    pq.pop();
-    if(dist[u].top() < dis) continue;
-
-    for(auto it: adj[u]){
-      ll v = it.first, wt = it.second;
-      if(int(dist[v].size()) < k){
-        dist[v].push(wt + dis);
-        pq.push({wt + dis, v});
-      }
-      else if(dis + wt < dist[v].top()){
-        dist[v].pop();
-        dist[v].push(wt + dis);
-        pq.push({wt + dis, v});
-      }
+void fillsubtree(int u, int par){
+  for(auto v: adj[u]){
+    if(v != par){
+      fillsubtree(v, u);
+      subTreeSize[u] += subTreeSize[v];
+      subTreeAns[u] += (subTreeSize[v] + subTreeAns[v]);
     }
   }
-  vector<ll> ans;
-  while(!dist[n-1].empty()){
-    ans.pb(dist[n-1].top());
-    dist[n-1].pop();
+}
+
+void dfs(int u, int par, ll partial_ans, int totalnodes){
+  ans[u] = subTreeAns[u] + partial_ans + (totalnodes-subTreeSize[u]);
+
+  for(auto v: adj[u]){
+    if(v != par){
+      ll newPar_ans = ans[u] - (subTreeAns[v] + subTreeSize[v]);
+      dfs(v, u, newPar_ans, totalnodes);
+    }
   }
-  reverse(all(ans));
-  for(auto it: ans) cout << it << " ";
+}
+
+void solve(){
+  int n;
+  cin >> n;
+  int m = n-1;
+  while(m--){
+    int u, v;
+    cin >> u >> v;
+    adj[u].pb(v);
+    adj[v].pb(u);
+  }
+  //re-routing technique
+  fillsubtree(1, 0);
+  dfs(1, 0, 0, n);
+
+  for(int i=1; i<=n; i++) cout << ans[i] << " " ;
   cout << nl;
 }
   

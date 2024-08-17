@@ -4,68 +4,98 @@ using namespace std;
  
 #define pb push_back
 #define pob pop_back
-#define sq(x) x*x
-#define cube(x) x*x*x
+#define all(x) (x).begin(), (x).end()
+#define debugV(v) for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<endl;
+#define debug(x) cout<< #x << " = " << x << endl;
+#define debugMat(v) for(int i=0; i<v.size(); i++){ for(int j=0; j<v[0].size(); j++){ cout << v[i][j] << " ";} cout << nl;}
+#define nl "\n"
+#define ff first;
+#define ss second;
+#define yes cout<<"YES"<<nl
+#define no cout<<"NO"<<nl
  
 typedef long double ld;
 typedef long long ll;
-typedef vector<long long> vll;
+typedef vector<ll> vll;
 typedef pair<int,int> pii;
-typedef pair<long long, long long> pll;
-typedef vector<pair<long long, long long>> vpll;
+typedef pair<ll, ll> pll;
+typedef vector<pair<ll, ll>> vpll;
 typedef vector<pair<int,int>> vpii;
 typedef vector<int> vi;
+typedef vector<vector<int>> vvi;
+typedef vector<vector<ll>> vvll;
+typedef map<int,int> mii;
+ 
+int gcd(int a, int b){ return (b ? gcd(b, a % b) : a);}
+int lcm(int a, int b){ return (a*b/gcd(a,b)); }
+ 
+int delrow[] = {-1, 0, 1, 0};
+int delcol[] = {0, 1, 0, -1};
+string path_grid = "URDL";
+bool valid(int i, int j, int n, int m) {return (i>=0 && i<n && j>=0 && j<m); }
+ 
+const int maxN = 5000000+1;
+const int MOD = 1e9+7;
+const int N = 1e5+1;
+const int INF = 1e9;
+const ll INFF = 1e16;
  
  
-
-//normal dijkstra's algorithm
-
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+//try thinking Binary search(on ans), Bit manipulation, Dp
+//jee standard Maths, greedy, Bfs, Dfs, 2 pointers 
+//sliding window
+ 
+ 
+//DONT OVERTHINKKK 
+ 
+ 
 void solve(){
-   ll n,m;
-   cin>>n>>m;
- 
-   ll a, b, c;
-   vector<pair<ll,ll>> adj[n+1];
- 
-   for(int i=0; i<m; i++){
-      cin>>a>>b>>c;
-      adj[a].pb({b, c});
-   }
-   vector<ll> dist(n+1, 1e17);
-   priority_queue<pair<ll,ll>, 
-   vector<pair<ll,ll>>, 
-   greater<pair<ll,ll>>> pq;
- 
-   pq.push({0, 1});
-   dist[1] = 0;
-   while(!pq.empty()){
-      auto it = pq.top();
-      ll node = it.second;
-      ll wt = it.first;
-      pq.pop();
-      if(wt > dist[node]) continue;
- 
-      for(auto it: adj[node]){
-         ll adjNode = it.first;
-         ll edwt = it.second;
-         if(dist[adjNode] > wt + edwt){
-            dist[adjNode] = wt + edwt;
-            pq.push({wt+edwt, adjNode});
-         }
-         else continue;
-      }
-   }
-   for(int i=1; i<=n; i++) cout<<dist[i]<<" ";
+    int n, m;
+    cin >> n >> m;
+    vector<pll> adj[n];
+    vector<ll> dist(n, INFF);
+
+    while(m--){
+        int u, v, wt;
+        cin >> u >> v >> wt;
+        u--, v--;
+        adj[u].pb({v, wt});
+    }
+    priority_queue<pll, vector<pll>, greater<pll>> pq;
+    pq.push({0, 0}); // {wt, node}
+    dist[0] = 0;
+
+    while(!pq.empty()){
+        ll dis = pq.top().first;
+        int node = pq.top().second;
+        pq.pop();
+        if(dist[node] < dis) continue;
+
+        for(auto it: adj[node]){
+            int adjNode = it.first;
+            ll wt = it.second;
+            if(wt + dis < dist[adjNode]){
+                dist[adjNode] = dis + wt;
+                pq.push({dis+wt, adjNode});
+            }
+        }
+    }
+    for(int i=0; i<n; i++) cout << dist[i] << " ";
+    cout << nl;
 }
- 
+   
 int main() {
-   ios::sync_with_stdio(0);
-   cin.tie(0);
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    // cout << setprecision(12) << fixed;
  
-   int t = 1;
-   //cin>>t;
-   while(t--){
+    int t = 1;
+    // cin >> t;
+    while (t--) {
         solve();
-   }
-   return 0;
+    }
+    return 0;
 }

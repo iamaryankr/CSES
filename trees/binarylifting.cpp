@@ -57,7 +57,9 @@ void dfs(int u, int par){
     tin[u] = ++timer;
     up[u][0] = par;
     for(int i=1; i<=l; i++){
-        up[u][i] = up[up[u][i-1]][i-1];
+        if(up[u][i-1]!=-1)
+            up[u][i] = up[up[u][i-1]][i-1];
+        else up[u][i] = -1;
     }
     for(auto v: adj[u]){
         if(v!=par) dfs(v, u);
@@ -84,7 +86,7 @@ void preprocess(int root){
     tout.resize(n);
     timer = 0;
     l = ceil(log2(n));
-    up.assign(n, vector<int> (l+1));
+    up.assign(n, vector<int> (l+1, -1));
     dfs(root, root);
 }
 

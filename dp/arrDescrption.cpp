@@ -49,35 +49,43 @@ const int N = 2e5+1;
 //abs==2, 1 ans only, no need to check
 
 
-bool valid(int x, int m){
+const int mxN = 1e5+2;
+const int mxM = 1e2+2;
+int dp[mxN][mxM];
+
+bool validx(int x, int m){
     return x>=1 && x<=m;
 }
-void solve() {
-    int n,m;
-    cin>>n>>m;
-    vi x(n);
-    for(int i=0; i<n ;i++) cin>>x[i];
-    
-    vector<vector<int>> dp(n+1, vector<int> (m+1, 0));
-    //dp[i][v] no of ways of building pref of size i
-    // s.t last ele of prefix is k
-    for(int i=1; i<=m; i++){
-        if(x[0]==i || x[0]==0) dp[1][i] = 1;
+void solve(){
+    int n, m;
+    cin >> n >> m;
+    vi a(n);
+    for(int i=0; i<n ; i++) cin >> a[i];
+
+    memset(dp, 0, sizeof dp);
+    //dp(i, x); is the number of ways to make array till ith ind
+    //s.t. last element is x;
+
+    //base case of 1 sized array
+    for(int x=1; x<=m; x++){
+        if(a[0]==0 || a[0]==x) dp[1][x] = 1;
     }
+
     for(int i=2; i<=n; i++){
-        for(int k=1; k<=m; k++){
-            if(x[i-1]!=0 && x[i-1]!=k){
-                dp[i][k] = 0;
-                continue;
-            }
-            for(int prev=k-1; prev<=k+1; prev++){
-                if(!valid(prev, m)) continue;
-                dp[i][k] = (dp[i][k] + dp[i-1][prev])%MOD;
+        for(int x=1; x<=m; x++){
+            if(a[i-1]==0 || a[i-1]==x){
+                // 3 possibilities to fill the element where 0
+                if(validx(x-1, m)) dp[i][x] = (dp[i][x] + dp[i-1][x-1])%MOD;
+                if(validx(x, m)) dp[i][x] = (dp[i][x] + dp[i-1][x])%MOD;
+                if(validx(x+1, m)) dp[i][x] = (dp[i][x] + dp[i-1][x+1])%MOD;
             }
         }
     }
-    ll ans = 0;
-    for(int i=1; i<=m; i++) ans = (ans+dp[n][i])%MOD;
+
+    int ans = 0;
+    for(int x=1; x<=m; x++){
+        ans = (ans + dp[n][x])%MOD;
+    }
     cout << ans << nl;
 }
 

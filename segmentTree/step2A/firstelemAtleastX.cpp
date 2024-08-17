@@ -1,55 +1,69 @@
 //iamaryankr
 #include<bits/stdc++.h>
 using namespace std;
-
-// #define pb push_back
+ 
+#define pb push_back
 #define pob pop_back
-#define sq(x) x*x
-#define cube(x) x*x*x
 #define all(x) (x).begin(), (x).end()
 #define debugV(v) for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<endl;
 #define debug(x) cout<< #x << " = " << x << endl;
+#define debugMat(v) for(int i=0; i<v.size(); i++){ for(int j=0; j<v[0].size(); j++){ cout << v[i][j] << " ";} cout << nl;}
 #define nl "\n"
-
+#define ff first;
+#define ss second;
+#define yes cout<<"YES"<<nl
+#define no cout<<"NO"<<nl
+ 
 typedef long double ld;
 typedef long long ll;
-typedef vector<long long> vll;
+typedef vector<ll> vll;
 typedef pair<int,int> pii;
-typedef pair<long long, long long> pll;
-typedef vector<pair<long long, long long>> vpll;
+typedef pair<ll, ll> pll;
+typedef vector<pair<ll, ll>> vpll;
 typedef vector<pair<int,int>> vpii;
 typedef vector<int> vi;
-
-int gcd(int a, int b){ return (b ? gcd(b, a % b) : a); }
+typedef vector<vector<int>> vvi;
+typedef vector<vector<ll>> vvll;
+typedef map<int,int> mii;
+ 
+int gcd(int a, int b){ return (b ? gcd(b, a % b) : a);}
 int lcm(int a, int b){ return (a*b/gcd(a,b)); }
-
-
+ 
 int delrow[] = {-1, 0, 1, 0};
 int delcol[] = {0, 1, 0, -1};
-
+string path_grid = "URDL";
+bool valid(int i, int j, int n, int m) {return (i>=0 && i<n && j>=0 && j<m); }
+ 
 const int maxN = 5000000+1;
 const int MOD = 1e9+7;
-const int N = 1e9;
+const int N = 1e5+1;
+const int INF = 1e9;
+const ll INFF = 1e16;
+ 
+ 
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+//try thinking Binary search(on ans), Bit manipulation, Dp
+//jee standard Maths, greedy, Bfs, Dfs, 2 pointers 
+//sliding window
+ 
+ 
+//DONT OVERTHINKKK 
 
-//segment with maxSum
-// class item{
-// public:
-//   ll seg, pref, suf, sum;
-// };
-typedef int item;
+//General seg tree templates
 
 class segTree{
 public:
   ll size = 1 ;
-  vector<item> values;
+  vector<int> values;
 
-  item neutral_element = INT_MIN;
+  int neutral_element = INT_MIN;
 
 
-  item merge(item a, item b) {
+  int merge(int a, int b) {
     return max(a, b);
   }
-  item single(int v){
+  int single(int v){
     return v;
   }
 
@@ -92,18 +106,18 @@ public:
     set(i, v, 0, 0, size);
   }
 
-  //finding sum(l, r);
-  item calc(int l, int r, int x, int lx, int rx){
-    if(lx >= r || l >= rx) return neutral_element;
-    if(lx >= l && rx <= r) return values[x];
-    int mid = (lx+rx)/2;
-    item lefts = calc(l, r, 2*x+1, lx, mid);
-    item rights = calc(l, r, 2*x+2, mid, rx);
-    return merge(lefts, rights);
-  }
-  item calc(int l, int r){
-    return calc(l, r, 0, 0, size);
-  }
+  // //finding sum(l, r);
+  // int calc(int l, int r, int x, int lx, int rx){
+  //   if(lx >= r || l >= rx) return neutral_element;
+  //   if(lx >= l && rx <= r) return values[x];
+  //   int mid = (lx+rx)/2;
+  //   int lefts = calc(l, r, 2*x+1, lx, mid);
+  //   int rights = calc(l, r, 2*x+2, mid, rx);
+  //   return merge(lefts, rights);
+  // }
+  // int calc(int l, int r){
+  //   return calc(l, r, 0, 0, size);
+  // }
 
   int first_above(int v, int x, int lx, int rx){
     if(values[x] < v) return -1;

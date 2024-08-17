@@ -97,9 +97,9 @@ public:
         if(low>=l && high<=r) return values[node];
 
         int mid = (low+high)>>1;
-        item lmin = calc(l, r, 2*node+1, low, mid);
-        item rmin = calc(l, r, 2*node+2, mid, high);
-        return merge(lmin, rmin);
+        item left = calc(l, r, 2*node+1, low, mid);
+        item right = calc(l, r, 2*node+2, mid, high);
+        return merge(left, right);
     }
     item calc(int l, int r){
         return calc(l, r, 0, 0, size);

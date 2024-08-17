@@ -5,10 +5,9 @@ using namespace std;
 #define pb push_back
 #define pob pop_back
 #define all(x) (x).begin(), (x).end()
-#define debugV(v) cout<<#v<<" = [ "; for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<"]"<<nl;
+#define debugV(v) for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<endl;
 #define debug(x) cout<< #x << " = " << x << endl;
 #define debugMat(v) for(int i=0; i<v.size(); i++){ for(int j=0; j<v[0].size(); j++){ cout << v[i][j] << " ";} cout << nl;}
-#define fr(i, a, n) for(int i=a; i<n; i++)
 #define nl "\n"
 #define ff first;
 #define ss second;
@@ -20,37 +19,41 @@ typedef long long ll;
 typedef vector<ll> vll;
 typedef pair<int,int> pii;
 typedef pair<ll, ll> pll;
-typedef vector<pll> vpll;
-typedef vector<pii> vpii;
+typedef vector<pair<ll, ll>> vpll;
+typedef vector<pair<int,int>> vpii;
 typedef vector<int> vi;
-typedef vector<vi> vvi;
-typedef vector<vll> vvll;
+typedef vector<vector<int>> vvi;
+typedef vector<vector<ll>> vvll;
 typedef map<int,int> mii;
  
-int gcd(int a, int b){ return (b ? gcd(b, a % b) : a); }
+int gcd(int a, int b){ return (b ? gcd(b, a % b) : a);}
 int lcm(int a, int b){ return (a*b/gcd(a,b)); }
  
 int delrow[] = {-1, 0, 1, 0};
 int delcol[] = {0, 1, 0, -1};
-bool valid(int i, int j, int n, int m) {return i>=0 && i<n && j<m && j>=0;}
-
+string path_grid = "URDL";
+bool valid(int i, int j, int n, int m) {return (i>=0 && i<n && j>=0 && j<m); }
+ 
+const int maxN = 5000000+1;
 const int MOD = 1e9+7;
+const int N = 1e5+1;
 const int INF = 1e9;
-const ll INFF = 1e18;
-
+const ll INFF = 1e16;
+ 
+ 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
 //try thinking Binary search(on ans), Bit manipulation, Dp
-//jee standard Maths, greedy, Bfs, Dfs, 2 pointers, bitmask
+//jee standard Maths, greedy, Bfs, Dfs, 2 pointers 
 //sliding window
+ 
+ 
+//DONT OVERTHINKKK 
 
-
-//DONT OVERTHINKKK//
+//General seg tree templates
 struct item{
-    ll seg, pref, suf, sum;
+    ll pref, suf, seg, sum;
 };
-
-
-//GENERAL SEG TREE 
 class segTree{
 public:
     int size = 1;
@@ -64,18 +67,19 @@ public:
 
     //merge function for child nodes to get ans for parent
     item merge(item a, item b){
-        return{
-            max(a.seg, max(b.seg, a.suf + b.pref)), 
-            max(a.pref, a.sum + b.pref),
-            max(b.suf, b.sum + a.suf),
-            a.sum + b.sum
-        };
+        ll _pref = max(a.pref, a.sum+b.pref);
+        ll _suf = max(b.suf, a.suf + b.sum);
+        ll _seg = max({a.seg, b.seg, a.suf+b.pref});
+        ll _sum = a.sum + b.sum;
+
+        return {_pref, _suf, _seg, _sum};
     }
     //assigning item to a node val
     item make_item(int v){
         if(v > 0) return {v, v, v, v};
-        else return {0, 0, 0, v};
+        return {0, 0, 0, v};
     }
+    
     //building the tree with the vector a
     void build(vi &a, int node, int low, int high){
         if(low+1 == high){
@@ -107,30 +111,31 @@ public:
         set(i, v, 0, 0, size);
     }
 
-    //finding the minimum in a segment
+    //finding result in a segment
     item calc(int l, int r, int node, int low, int high){
         if(low>=r || high<=l) return neutral_ele;
         if(low>=l && high<=r) return values[node];
 
         int mid = (low+high)>>1;
-        item lmin = calc(l, r, 2*node+1, low, mid);
-        item rmin = calc(l, r, 2*node+2, mid, high);
-        return merge(lmin, rmin);
+        item left = calc(l, r, 2*node+1, low, mid);
+        item right = calc(l, r, 2*node+2, mid, high);
+        return merge(left, right);
     }
     item calc(int l, int r){
         return calc(l, r, 0, 0, size);
     }
 };
-void solve() {
-    int n, m;
-    cin >> n >> m;
+
+void solve(){
+    int n , q;
+    cin >> n >> q;
     vi a(n);
-    for(int i=0; i<n ;i++) cin >> a[i];
+    for(int i=0; i<n; i++) cin >> a[i];
     segTree st(n);
     st.build(a);
 
     cout << st.calc(0, n).seg << nl;
-    while(m--){
+    while(q--){
         int i, v;
         cin >> i >> v;
         st.set(i, v);
@@ -142,7 +147,7 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
     cout.tie(0);
-    // cout << setprecision(12) << fixed;
+    // cout << setprecision(12) << fixed; 
     int t = 1;
     // cin >> t;
     while (t--) {

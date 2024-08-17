@@ -47,51 +47,83 @@ const ll INFF = 1e18;
  
  
 //DONT OVERTHINKKK 
- 
-void solve(){
-  int n, m, k;
-  cin >> n >> m >> k;
-  vector<pii> adj[n];
 
-  while(m--){
-    int u, v, wt;
-    cin >> u >> v >> wt;
-    u--, v--;
-    adj[u].pb({v, wt});
+//general seg tree template use
+
+string s;
+class item{
+public:
+  int open, close, full;
+};
+class segTree{
+public:
+  int size = 1;
+  vector<item> values;
+  item neutral_ele = {0, 0, 0};
+  //constructor
+  segTree(int n){
+    while(size < n) size*= 2;
+    values.resize(2*size);
   }
-  priority_queue<pll, vpll, greater<pll>> pq; // for dijsktra
-  priority_queue<ll> dist[n]; // dist[] is a pq itself
 
-  pq.push({0, 0});
-  dist[0].push(0);
+  //merge function for child nodes to get ans for parent
+  item merge(item a, item b){
+    int f = a.full + b.full + min(a.open, b.close);
+    int o = a.open + b.open - min(a.open, b.close);
+    int c = a.close + b.close - min(a.open, b.close);
+    return {o, c, f};
+  }
+  //assigning int to a node val
+  item make_int(int ind){
+    int o = (s[ind]=='(');
+    int c = (s[ind]==')');
+    int f = 0;
+    return {o, c, f};
+  }
   
-  while(!pq.empty()){
-    ll dis = pq.top().first;
-    int u = pq.top().second;
-    pq.pop();
-    if(dist[u].top() < dis) continue;
-
-    for(auto it: adj[u]){
-      ll v = it.first, wt = it.second;
-      if(int(dist[v].size()) < k){
-        dist[v].push(wt + dis);
-        pq.push({wt + dis, v});
-      }
-      else if(dis + wt < dist[v].top()){
-        dist[v].pop();
-        dist[v].push(wt + dis);
-        pq.push({wt + dis, v});
-      }
+  //building the tree with the vector a
+  void build(int node, int low, int high){
+    if(low+1 == high){
+        if(low < int(s.size()) ) values[node] = make_int(low);
+        return;
     }
+    int mid = (low+high)>>1;
+    build(2*node+1, low, mid);
+    build(2*node+2, mid, high);
+    values[node] = merge(values[2*node+1], values[2*node+2]);
   }
-  vector<ll> ans;
-  while(!dist[n-1].empty()){
-    ans.pb(dist[n-1].top());
-    dist[n-1].pop();
+  void build(){
+    build(0, 0, size);
   }
-  reverse(all(ans));
-  for(auto it: ans) cout << it << " ";
-  cout << nl;
+
+  //building the calc function
+  item calc(int l, int r, int node, int low, int high){
+        if(low>=r || high<=l) return neutral_ele;
+        if(low>=l && high<=r) return values[node];
+
+        int mid = (low+high)>>1;
+        item left = calc(l, r, 2*node+1, low, mid);
+        item right = calc(l, r, 2*node+2, mid, high);
+        return merge(left, right);
+    }
+    item calc(int l, int r){
+        return calc(l, r, 0, 0, size);
+    }
+};
+void solve(){
+  cin >> s;
+  int m;
+  cin >> m;
+  int n = s.size();
+  segTree st(n);
+  st.build();
+  while(m--){
+    int l, r;
+    cin >> l >> r;
+    l--;
+    cout << 2*(st.calc(l, r).full) << nl;
+  }
+
 }
   
 int main() {

@@ -47,67 +47,66 @@ const ll INFF = 1e16;
 
 //print cycle in a undirected graph
 
-int n,m;
-vector<vector<int>> adj;
-vector<int> vis;
-vector<int> parent;
-int cycle_start, cycle_end;
+const int mxN = 1e5+2;
 
-bool dfs(int v, int par) {
-    vis[v] = 1;
-    for (int u : adj[v]) {
-        if(u == par) continue;
-        if (vis[u]) {
-            cycle_end = v;
-            cycle_start = u;
+// vector<int> color(mxN, -1);
+vector<int> adj[mxN];
+vector<bool> vis(mxN, 0);
+vector<int> parent(mxN, -1);
+int cycleStart=-1, cycleEnd=-1;
+
+bool dfs(int node, int par){
+    vis[node] = 1;
+
+    for(auto it: adj[node]){
+        if(it==par) continue;
+        parent[it] = node;
+        if(!vis[it]){
+            if(dfs(it, node)) return true;
+        }
+        else if(vis[it]){
+            cycleEnd = node;
+            cycleStart = it;
             return true;
         }
-        parent[u] = v;
-        if (dfs(u, parent[u]))
-            return true;
     }
     return false;
 }
-
-void find_cycle() {
-    vis.assign(n, 0);
-    parent.assign(n, -1);
-    cycle_start = -1;
-
-    for (int v = 0; v < n; v++) {
-        if (!vis[v] && dfs(v, parent[v]))
-            break;
-    }
-
-    if (cycle_start == -1) {
-        cout << "IMPOSSIBLE" << endl;
-    } 
-    else {
-        vector<int> ans;
-        ans.push_back(cycle_start);
-        for (int x = cycle_end; x != cycle_start; x = parent[x])
-            ans.push_back(x);
-        ans.push_back(cycle_start);
-        reverse(ans.begin(), ans.end());
-
-        cout << ans.size() << nl;
-        for (int v : ans)
-            cout << v+1 << " ";
-        cout << endl;
-    }
-}
-
 void solve(){
-    cin>>n>>m;
-    adj.resize(n);
+    int n, m;
+    cin >> n >> m;
     while(m--){
-        int u,v;
-        cin>>u>>v;
+        int u, v;
+        cin >> u >> v;
         u--, v--;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
+        adj[u].pb(v);
+        adj[v].pb(u);
     }
-    find_cycle();
+
+    for(int i=0; i<n; i++){
+        if(!vis[i] && dfs(i, parent[i])){
+            break;
+        }
+    }
+    if(cycleStart==-1){
+        cout << "IMPOSSIBLE" <<nl;
+    }
+    else{
+        vector<int> cycle;
+        cycle.pb(cycleStart);
+        int node = cycleEnd;
+        while(node != cycleStart){
+            cycle.pb(node);
+            node = parent[node];
+        }
+        cycle.pb(cycleStart);
+        reverse(all(cycle));
+
+        cout << cycle.size() << nl;
+        for(auto it: cycle) cout << it+1 << " " ;
+        cout << nl;
+    }
+
 }
    
 int main() {

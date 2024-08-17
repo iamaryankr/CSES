@@ -13,7 +13,7 @@ using namespace std;
 #define ff first;
 #define ss second;
 #define yes cout<<"YES"<<nl
-#define no cout<<"NO"<<nl
+#define no cout<<"NO"<<nl 
  
 typedef long double ld;
 typedef long long ll;
@@ -27,6 +27,7 @@ typedef vector<vi> vvi;
 typedef vector<vll> vvll;
 typedef map<int,int> mii;
  
+ 
 int gcd(int a, int b){ return (b ? gcd(b, a % b) : a); }
 int lcm(int a, int b){ return (a*b/gcd(a,b)); }
  
@@ -34,7 +35,7 @@ int delrow[] = {-1, 0, 1, 0};
 int delcol[] = {0, 1, 0, -1};
 const string path_grid = "URDL";
 bool valid(int i, int j, int n, int m) {return i>=0 && i<n && j<m && j>=0;}
-
+ 
 const int MOD = 1e9+7;
 const int INF = 1e9;
 const ll INFF = 1e18;
@@ -47,51 +48,62 @@ const ll INFF = 1e18;
  
  
 //DONT OVERTHINKKK 
+const int mxN = 2e5 + 5;
+vector<int> adj[mxN];
+vector<int> tin(mxN), tout(mxN);
+vector<vector<int>> up;
+vector<int> dep(mxN, 1);
+int timer, l;
+
+void dfs(int u, int par){
+  tin[u] = ++timer;
+  up[u][0] = par;
  
-void solve(){
-  int n, m, k;
-  cin >> n >> m >> k;
-  vector<pii> adj[n];
-
-  while(m--){
-    int u, v, wt;
-    cin >> u >> v >> wt;
-    u--, v--;
-    adj[u].pb({v, wt});
+  for(int i=1; i<=l; i++){
+    if(up[u][i-1] != -1)
+      up[u][i] = up[up[u][i-1]][i-1];
+    else up[u][i] = -1;
   }
-  priority_queue<pll, vpll, greater<pll>> pq; // for dijsktra
-  priority_queue<ll> dist[n]; // dist[] is a pq itself
-
-  pq.push({0, 0});
-  dist[0].push(0);
-  
-  while(!pq.empty()){
-    ll dis = pq.top().first;
-    int u = pq.top().second;
-    pq.pop();
-    if(dist[u].top() < dis) continue;
-
-    for(auto it: adj[u]){
-      ll v = it.first, wt = it.second;
-      if(int(dist[v].size()) < k){
-        dist[v].push(wt + dis);
-        pq.push({wt + dis, v});
-      }
-      else if(dis + wt < dist[v].top()){
-        dist[v].pop();
-        dist[v].push(wt + dis);
-        pq.push({wt + dis, v});
-      }
+  for(auto v: adj[u]){
+    if(v != par) {
+      dep[v] += dep[u];
+      dfs(v, u);
     }
   }
-  vector<ll> ans;
-  while(!dist[n-1].empty()){
-    ans.pb(dist[n-1].top());
-    dist[n-1].pop();
+  tout[u] = ++timer;
+}
+bool isAncestor(int u, int v){
+  return tin[u]<=tin[v] && tout[u]>=tout[v];
+}
+int lca(int u, int v){
+  if(isAncestor(u, v)) return u;
+  if(isAncestor(v, u)) return v;
+
+  for(int i=l; i>=0; i--){
+    if(up[u][i]!=-1 && !isAncestor(up[u][i], v)) u = up[u][i];
   }
-  reverse(all(ans));
-  for(auto it: ans) cout << it << " ";
-  cout << nl;
+  return up[u][0];
+}
+void solve(){
+  int n, q;
+  cin >> n >> q;
+  for(int i=0; i<n-1; i++){
+    int u, v;
+    cin >> u >> v;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
+  }
+  timer = 0;
+  l = (ceil(log2(n)));
+  up.assign(n+1, vector<int> (l+1, -1));
+ 
+  dfs(1, -1);
+ 
+  while(q--){
+    int u, v;
+    cin >> u >> v;
+    cout << dep[u] + dep[v] - 2*(dep[lca(u, v)]) << nl;
+  }
 }
   
 int main() {

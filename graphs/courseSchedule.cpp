@@ -47,50 +47,52 @@ const ll INFF = 1e18;
  
  
 //DONT OVERTHINKKK 
- 
-void solve(){
-  int n, m, k;
-  cin >> n >> m >> k;
-  vector<pii> adj[n];
+const int mxN = 1e5 + 2;
+vector<int> adj[mxN];
+vector<int> topo;
+vector<int> vis(mxN, 0);
 
-  while(m--){
-    int u, v, wt;
-    cin >> u >> v >> wt;
-    u--, v--;
-    adj[u].pb({v, wt});
+void dfs(int node){
+  vis[node] = 1;
+
+  for(auto it: adj[node]){
+    if(!vis[it]) dfs(it);
   }
-  priority_queue<pll, vpll, greater<pll>> pq; // for dijsktra
-  priority_queue<ll> dist[n]; // dist[] is a pq itself
 
-  pq.push({0, 0});
-  dist[0].push(0);
-  
-  while(!pq.empty()){
-    ll dis = pq.top().first;
-    int u = pq.top().second;
-    pq.pop();
-    if(dist[u].top() < dis) continue;
+  topo.push_back(node);
+}
+void solve(){
+  int n, m;
+  cin >> n >> m;
+  while(m--){
+    int u, v;
+    cin >> u >> v;
+    u--, v--;
+    adj[u].pb(v);
+  }
+  for(int i=0; i<n; i++){
+    if(!vis[i]) dfs(i);
+  }
+  reverse(all(topo));
+  map<int, int> mp;
+  for(int i=0; i<int(topo.size()); i++) mp[topo[i]] = i;
 
-    for(auto it: adj[u]){
-      ll v = it.first, wt = it.second;
-      if(int(dist[v].size()) < k){
-        dist[v].push(wt + dis);
-        pq.push({wt + dis, v});
-      }
-      else if(dis + wt < dist[v].top()){
-        dist[v].pop();
-        dist[v].push(wt + dis);
-        pq.push({wt + dis, v});
+  bool ok = true;
+  for(int i=0; i<n; i++){
+    for(auto it: adj[i]){
+      if(mp[it] <= mp[i]){
+        ok = false;
+        break;
       }
     }
+    if(!ok) break;
   }
-  vector<ll> ans;
-  while(!dist[n-1].empty()){
-    ans.pb(dist[n-1].top());
-    dist[n-1].pop();
+  
+  if(!ok){
+    cout << "IMPOSSIBLE" << nl;
+    return;
   }
-  reverse(all(ans));
-  for(auto it: ans) cout << it << " ";
+  for(auto it: topo) cout << it + 1 << " ";
   cout << nl;
 }
   

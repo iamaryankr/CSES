@@ -62,17 +62,6 @@ public:
   int merge(int l, int r){
     return l+r;
   }
-  int query(int x, int low, int high, int l, int r){
-    if(low >= r || high <= l) return 0;
-    if(low >= l && high <= r) return tree[x];
-    int mid = (low+high)/2;
-    int lq = query(2*x+1, low, mid, l, r);
-    int rq = query(2*x+2, mid, high, l, r);
-    return merge(lq, rq);
-  }
-  int query(int l, int r){
-    return query(0, 0, size, l, r);
-  }
 
   void update(int x, int low, int high, int i){
     if(high-low == 1){
@@ -88,6 +77,18 @@ public:
   void update(int i){
     update(0, 0, size, i);
   }
+
+  int calc(int x, int low, int high, int l, int r){
+    if(low >= r || high <= l) return 0;
+    if(low >= l && high <= r) return tree[x];
+    int mid = (low+high)/2;
+    int lq = calc(2*x+1, low, mid, l, r);
+    int rq = calc(2*x+2, mid, high, l, r);
+    return merge(lq, rq);
+  }
+  int calc(int l, int r){
+    return calc(0, 0, size, l, r);
+  }
 };
 
 void solve(){
@@ -95,9 +96,12 @@ void solve(){
   cin >> n;
   segTree st(n+1);
   vector<int> a(n+1);
+  //make the count array 1 indexed
+  //finding the elements in the freq array which are greater
+  //than the number to the right of freq array;
   for(int i=1; i<=n; i++){
     cin >> a[i];
-    cout << st.query(a[i], n+1) << " ";
+    cout << st.calc(a[i], n+1) << " ";
     st.update(a[i]);
   }
   cout << nl;

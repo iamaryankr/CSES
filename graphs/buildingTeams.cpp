@@ -47,37 +47,40 @@ const int INF = 1e9;
  
  
 //just check BIPARTITE
-bool dfs(int node, int col, vi &color, vi adj[]){
+const int mxN = 1e5+2;
+vector<int> adj[mxN];
+vector<int> color(mxN, -1);
+
+bool dfs(int node, int col){
     color[node] = col;
     for(auto it: adj[node]){
         if(color[it]==-1){
-            if(dfs(it, !col, color, adj)==false) return false;
+            if(dfs(it, !col)==true) return true;
         }
-        else if(color[it]==col) return false;
+        else if(color[it]==col) return true;
     }
-    return true;
+    return false;
 }
 void solve(){
-    int n,m;
-    cin>>n>>m;
-    vector<int> adj[n+1];
-    for(int i=0; i<m ;i++){
-        int u, v; 
-        cin>>u>>v;
+    int n, m;
+    cin >> n >> m;
+    while(m--){
+        int u, v;
+        cin >> u >> v;
+        u--, v--;
         adj[u].pb(v);
         adj[v].pb(u);
     }
- 
-    vector<int> color(n+1, -1);
-    for(int i=1; i<=n; i++){
-        if(color[i]==-1){
-            if(dfs(i, 0, color, adj)==false){
-                cout << "IMPOSSIBLE" <<nl;
-                return ;
-            }
+
+    for(int i=0; i<n; i++){
+        if(color[i]==-1 && dfs(i, 0)==true){
+            cout << "IMPOSSIBLE" <<nl;
+            return;
         }
     }
-    for(int i=1; i<=n; i++) cout << color[i]+1 <<" " ;
+    for(int i=0; i<n; i++){
+        cout << color[i]+1 << " ";
+    }
     cout << nl;
 }
    
