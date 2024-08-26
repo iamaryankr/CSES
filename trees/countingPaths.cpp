@@ -1,20 +1,21 @@
 //iamaryankr
 #include<bits/stdc++.h>
 using namespace std;
- 
+
 #define pb push_back
 #define pob pop_back
+#define mp make_pair
 #define all(x) (x).begin(), (x).end()
 #define debugV(v) cout<<#v<<" = [ "; for(int i=0;i<v.size();i++) cout<<v[i]<<' '; cout<<"]"<<nl;
 #define debug(x) cout<< #x << " = " << x << endl;
 #define debugMat(v) for(int i=0; i<v.size(); i++){ for(int j=0; j<v[0].size(); j++){ cout << v[i][j] << " ";} cout << nl;}
 #define fr(i, a, n) for(int i=a; i<n; i++)
 #define nl "\n"
-#define ff first;
-#define ss second;
-#define yes cout<<"YES"<<nl
-#define no cout<<"NO"<<nl 
- 
+#define ff first
+#define ss second
+#define yes cout<<"YES"<< nl
+#define no cout<<"NO"<< nl
+
 typedef long double ld;
 typedef long long ll;
 typedef vector<ll> vll;
@@ -43,71 +44,85 @@ const int MOD = 1e9+7;
 const int INF = 1e9;
 const ll INFF = 1e18;
  
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- 
+
+//-------------------------------------main-code-------------------------------------------------------------------------------------------------------------------------------------------------------
+
 //try thinking Binary search(on ans), Bit manipulation, Dp
 //jee standard Maths, greedy, Bfs, Dfs, 2 pointers 
 //sliding window
  
  
 //DONT OVERTHINKKK 
-const int mxN = 2e5 + 1;
-
+const int mxN = 2e5 + 5;
 vector<int> adj[mxN];
-int dp[mxN][2];
+vector<int> tin(mxN), tout(mxN);
+vector<vector<int>> up;
+int timer, l;
+vector<int> pref(mxN, 0);
 
-//dp(u, 0)-> maxm poss edges s.t no edge from (u, v);
-//dp(u, 1)-> maxm poss edges s.t we have 1 edges from (u, v);
+void binarylift(int u, int par){
+  tin[u] = ++timer;
+  up[u][0] = par;
 
-void dfs(int node, int par){
-  dp[node][1] = dp[node][0] = 0;
-
-  bool isLeaf = true;
-  for(auto it: adj[node]){
-      if(it != par){
-          isLeaf = false;
-          dfs(it, node);
-      }
+  for(int i=1; i<=l; i++){
+    if(up[u][i-1] != -1)
+      up[u][i] = up[up[u][i-1]][i-1];
+    else up[u][i] = -1;
   }
-  if(isLeaf) return;
-
-  vector<int> pref, suff;
-  for(auto it: adj[node]){
-    if(it != par){
-      pref.push_back(max(dp[it][0], dp[it][1]));
-      suff.push_back(max(dp[it][0], dp[it][1]));
-    }
+  for(auto v: adj[u]){
+    if(v != par) binarylift(v, u);
   }
-  int n = pref.size();
-  for(int i=1; i<n; i++) pref[i] = pref[i-1] + pref[i];
-  for(int i=n-2; i>=0; i--) suff[i] = suff[i+1] + suff[i];
 
-  int maxi = -1e9;
-  int cno = 0;
-  for(auto it: adj[node]){
-    if(it != par){
-      int leftans = (cno==0 ? 0 : pref[cno-1]);
-      int rightans = (cno==n-1 ? 0 : suff[cno+1]);
-      maxi = max(maxi,  1 + leftans + dp[it][0] + rightans);
-      cno ++ ;
-    }
+  tout[u] = ++timer;
+}
+bool isAncestor(int u, int v){
+  return tin[u]<=tin[v] && tout[u]>=tout[v];
+}
+int lca(int u, int v){
+  if(isAncestor(u, v)) return u;
+  if(isAncestor(v, u)) return v;
+
+  for(int i=l; i>=0; i--){
+    if(up[u][i]!=-1 && !isAncestor(up[u][i], v)) u = up[u][i];
   }
-  dp[node][0] = suff[0];
-  dp[node][1] = maxi;
+  return up[u][0];
 }
 
+
+void dfs(int u, int par){
+  for(auto v: adj[u]){
+    if(v!=par){
+      dfs(v, u);
+      pref[u] += pref[v];
+    }
+  }
+}
 void solve(){
-  int n;
-  cin >> n;
+  int n, m;
+  cin >> n >> m;
+  l = ceil(log2(n));
+  timer = 0;
+  up.assign(n+1, vi(l+1, -1));
   for(int i=2; i<=n; i++){
     int u, v;
     cin >> u >> v;
     adj[u].push_back(v);
     adj[v].push_back(u);
   }
-
+  binarylift(1, -1);
+  while(m--){
+    int u, v;
+    cin >> u >> v;
+    int lca_ = lca(u, v);
+    pref[u] ++ ;
+    pref[v] ++ ;
+    pref[lca_] --;
+    pref[up[lca_][0]]--;
+  }
+  
   dfs(1, 0);
-  cout << max(dp[1][0], dp[1][1]) << nl;
+  for(int i=1; i<=n; i++) cout << pref[i] << " ";
+  cout << nl;
 }
   
 int main() {
