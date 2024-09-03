@@ -1,6 +1,6 @@
 //iamaryankr
 #include<bits/stdc++.h>
-using namespace std;
+using namespace std; 
 
 #define pb push_back
 #define pob pop_back
@@ -16,8 +16,8 @@ using namespace std;
 #define yes cout<<"YES"<< nl
 #define no cout<<"NO"<< nl
 
-typedef long double ld;
 typedef long long ll;
+typedef long double ld;
 typedef vector<ll> vll;
 typedef pair<int,int> pii;
 typedef pair<ll, ll> pll;
@@ -54,69 +54,55 @@ const ll INFF = 1e18;
  
  
 //DONT OVERTHINKKK 
+
+
 const int mxN = 2e5 + 5;
+vector<vector<pii>> adj;
+vector<int> path;
+vector<int> vis;
+vector<int> degree;
+ 
 
-class segTree{
-public:
-  int size = 1;
-  vector<ll> sum_tree;
-  vector<ll> min_tree;
-  segTree(int n){
-    while(size < n) size*= 2;
-    sum_tree.resize(2*size, 0);
-    min_tree.resize(2*size, 0);
+//BASIC EULERIAN PATH algorithm
+void dfs(int u){
+  while(!adj[u].empty()){
+    int v = adj[u].back().first, ind = adj[u].back().second;
+    adj[u].pop_back();
+    if(vis[ind]) continue;
+    vis[ind] = 1;
+    dfs(v);
   }
-
-  void update(int l, int r, int v, int node, int low, int high){
-
-    if(low>=r || high<=l) return;
-    if(low>=l && high<=r){
-      sum_tree[node] += v;
-      min_tree[node] += v;
-      return;
-    }
-    int mid = (low + high)>>1;
-    update(l, r, v, 2*node+1, low, mid);
-    update(l, r, v, 2*node+2, mid, high);
-    min_tree[node] = min(min_tree[2*node+1], min_tree[2*node+2]) + sum_tree[node];
-  }
-  void update(int l, int r, int v){
-    update(l, r, v, 0, 0, size);
-  }
-  //change this to your ques requirement
-  ll calc(int l, int r, int node, int low, int high){
-
-    if(low>=r || high<=l) return INFF;
-    if(low>=l && high<=r){
-      return min_tree[node];
-    }
-    int mid = (low + high)>>1;
-    ll left = calc(l, r, 2*node+1, low, mid);
-    ll right = calc(l, r, 2*node+2, mid, high);
-
-    return min(left, right) + sum_tree[node];
-  } 
-  ll calc(int l, int r){
-    return calc(l, r, 0, 0, size);
-  }
-};
+  path.push_back(u);
+}
 void solve(){
   int n, m;
   cin >> n >> m;
-  segTree ST(n);
-  while(m--){
-    int op; cin >> op;
-    if(op == 1){
-      int l, r, v;
-      cin >> l >> r >> v;
-      ST.update(l, r, v);
-    }
-    else if(op == 2){
-      int l, r;
-      cin >> l >> r;
-      cout << ST.calc(l, r) << nl;
+  adj.resize(n);
+  degree.assign(n, 0);
+  vis.assign(m, 0); // vis is for the edges
+
+  for(int i=0; i<m; i++){
+    int u, v;
+    cin >> u >> v;
+    u--, v--;
+    adj[u].push_back({v, i});
+    adj[v].push_back({u, i});
+    degree[u] ++ , degree[v] ++ ;
+  }
+
+  for(int u=0; u<n; u++){
+    if(degree[u]&1){
+      cout << "IMPOSSIBLE" << nl;
+      return;
     }
   }
+  dfs(0);
+
+  if(int(path.size()) == m+1){
+    for(auto u: path) cout << u + 1 <<  " ";
+    cout << nl;
+  }
+  else cout << "IMPOSSIBLE" << nl;
 }
   
 int main() {

@@ -1,6 +1,6 @@
 //iamaryankr
 #include<bits/stdc++.h>
-using namespace std;
+using namespace std; 
 
 #define pb push_back
 #define pob pop_back
@@ -56,54 +56,76 @@ const ll INFF = 1e18;
 //DONT OVERTHINKKK 
 const int mxN = 2e5 + 5;
 
+
 class segTree{
 public:
   int size = 1;
-  vector<ll> sum_tree;
-  vector<ll> min_tree;
+  int no_operation = 0;
+  vector<ll> values;
+  vector<ll> lazy;
   segTree(int n){
     while(size < n) size*= 2;
-    sum_tree.resize(2*size, 0);
-    min_tree.resize(2*size, 0);
+    values.resize(2*size, 0); 
+    lazy.resize(2*size, 0);
   }
 
+  void applyop(ll &a, ll b){
+    a = (a + b);
+  }
+
+  void propogate(int node, int low, int high){
+    if(lazy[node] == no_operation) return;
+    if(low + 1 != high) {
+      int mid = (low + high) >> 1;
+      applyop(lazy[2*node+1], lazy[node]);
+      applyop(lazy[2*node+2], lazy[node]);
+    }
+    values[node] += lazy[node]*(high - low);
+    lazy[node] = no_operation;
+  }
+  
   void update(int l, int r, int v, int node, int low, int high){
+    propogate(node, low, high);
 
     if(low>=r || high<=l) return;
     if(low>=l && high<=r){
-      sum_tree[node] += v;
-      min_tree[node] += v;
+      applyop(lazy[node], v);
+      propogate(node, low, high);
       return;
     }
     int mid = (low + high)>>1;
     update(l, r, v, 2*node+1, low, mid);
     update(l, r, v, 2*node+2, mid, high);
-    min_tree[node] = min(min_tree[2*node+1], min_tree[2*node+2]) + sum_tree[node];
+    
+    values[node] = (values[2*node+1] + values[2*node+2]);
   }
   void update(int l, int r, int v){
     update(l, r, v, 0, 0, size);
   }
   //change this to your ques requirement
   ll calc(int l, int r, int node, int low, int high){
+    propogate(node, low, high);
 
-    if(low>=r || high<=l) return INFF;
+    if(low>=r || high<=l) return 0;
     if(low>=l && high<=r){
-      return min_tree[node];
+      return values[node];
     }
     int mid = (low + high)>>1;
     ll left = calc(l, r, 2*node+1, low, mid);
     ll right = calc(l, r, 2*node+2, mid, high);
 
-    return min(left, right) + sum_tree[node];
+    return (left + right);
   } 
   ll calc(int l, int r){
     return calc(l, r, 0, 0, size);
   }
 };
-void solve(){
+void solve(){ 
   int n, m;
   cin >> n >> m;
   segTree ST(n);
+  for(int i=0; i<n; i++) ST.update(i, i, 0);
+
   while(m--){
     int op; cin >> op;
     if(op == 1){

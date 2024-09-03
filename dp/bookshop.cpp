@@ -46,33 +46,35 @@ const ll INFF = 1e18;
 
 //DONT OVERTHINKKK//
 
-const int mxN = 1e3+1;
-const int mxW = 1e5+1;
+const int mxN = 1002;
+const int mxW = 1e5 + 2;
+int dp[mxN][mxW];
 
-void solve() {
-    int n,x;
-    cin>>n>>x;
-    vi a(n), w(n);
-    for(int i=0; i<n; i++) cin>>w[i];
-    for(int i=0; i<n; i++) cin>>a[i];
+void solve(){
+  int n, W;
+  cin >> n >> W;
+  vi wt(n), val(n);
+  for(int i=0; i<n; i++) cin >> wt[i];
+  for(int i=0; i<n; i++) cin >> val[i];
 
-    vector<vector<int>> dp(mxN,vector<int>(mxW,0));
-    for(int i=w[0]; i<=x; i++){
-        dp[0][i] = a[0];
+  memset(dp, -INF, sizeof(dp));
+
+  for(int w=wt[0]; w<=W; w ++){
+    dp[0][w] = val[0];
+  }
+
+  for(int i=1; i<n; i++){
+    for(int w=0; w<=W; w++){
+      int nottake = dp[i-1][w];
+      int take = -INF;
+      if(w >= wt[i]) take = val[i] + dp[i-1][w - wt[i]];
+      dp[i][w] = max(take, nottake);
     }
-    for(int ind=1; ind<n; ind++){
-        for(int cap=0; cap<=x; cap++){
-            int nottake = 0 + dp[ind-1][cap];
-            
-            int take = INT_MIN;
-            if(w[ind] <= cap)
-                take = a[ind] + dp[ind-1][cap - w[ind]];
-                
-            dp[ind][cap] = max(nottake, take);
-        }
-    }
-    cout << dp[n-1][x] << nl;
+  }
+
+  cout << dp[n-1][W] << nl;
 }
+
    
 int main() {
     ios_base::sync_with_stdio(false);

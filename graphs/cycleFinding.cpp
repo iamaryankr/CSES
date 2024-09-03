@@ -51,56 +51,58 @@ const ll INFF = 1e18;
 //bellman ford for neg cycle and also printing it
  
 void solve(){
-    ll n,m;
-    cin>>n>>m;
-    vector<vector<ll>> edges;
-    vector<ll> dist(n, 0); //dont put INFF, as all nodes are to be explored
-    vector<ll> par(n, -1); 
-    while(m--){
-        ll u, v, wt;
-        cin>>u>>v>>wt;
-        u--; v--;
-        edges.push_back({u, v, wt});
-    }
-    for(int i=0; i<n-1; i++){
-      for(auto it: edges){
-        int u = it[0], v = it[1], wt = it[2];
-        if(dist[u] + wt < dist[v]){
-          dist[v] = dist[u] + wt;
-          par[v] = u;
-        }
-      }
-    }
-    int x = -1;
+  ll n,m;
+  cin>>n>>m;
+  vector<vector<ll>> edges;
+  vector<ll> dist(n, INFF); 
+  vector<ll> par(n, -1); 
+  while(m--){
+    ll u, v, wt;
+    cin>>u>>v>>wt;
+    u--; v--;
+    edges.push_back({u, v, wt});
+  }
+  //relax n-1 times
+  for(int i=0; i<n-1; i++){
     for(auto it: edges){
-        int u = it[0], v = it[1], wt = it[2];
-        if(dist[u] + wt < dist[v]){
-          dist[v] = dist[u] + wt;
-          par[v] = u;
-          x = v;
-        }
+      int u = it[0], v = it[1], wt = it[2];
+      if(dist[u] + wt < dist[v]){
+        dist[v] = dist[u] + wt;
+        par[v] = u;
       }
-    if(x==-1) cout << "NO" << nl;
-    else{
-        cout << "YES" << nl;
-        for (int i = 0; i < n; ++i) x = par[x];
-
-        vector<int> cycle;
-        int node = x;
-        while(par[node] != node){
-            cycle.push_back(node);
-            node = par[node];
-            if (node == x && cycle.size() > 1) break;
-        }
-        cycle.pb(x);
-        reverse(all(cycle));
-        if(cycle.size()==1){
-          cout << cycle[0]+1 << " " << cycle[0]+1 << nl;
-          return;
-        }
-        for (int v : cycle) cout << v+1 << ' ';
-        cout << nl;
     }
+  }
+  int x = -1;
+  //relax one more time
+  for(auto it: edges){
+    int u = it[0], v = it[1], wt = it[2];
+    if(dist[u] + wt < dist[v]){
+      dist[v] = dist[u] + wt;
+      par[v] = u;
+      x = v; // this node x is where the neg cycle starts
+    }
+  }
+  if(x==-1) cout << "NO" << nl;
+  else{
+    cout << "YES" << nl;
+    for (int i = 0; i < n; ++i) x = par[x];
+
+    vector<int> cycle;
+    int node = x;
+    while(par[node] != node){
+      cycle.push_back(node);
+      node = par[node];
+      if (node == x && cycle.size() > 1) break;
+    }
+    cycle.pb(x);
+    reverse(all(cycle));
+    if(cycle.size()==1){
+      cout << cycle[0]+1 << " " << cycle[0]+1 << nl;
+      return;
+    }
+    for (int v : cycle) cout << v+1 << ' ';
+    cout << nl;
+  }
 }
   
 int main() {

@@ -1,6 +1,6 @@
 //iamaryankr
 #include<bits/stdc++.h>
-using namespace std;
+using namespace std; 
 
 #define pb push_back
 #define pob pop_back
@@ -16,8 +16,8 @@ using namespace std;
 #define yes cout<<"YES"<< nl
 #define no cout<<"NO"<< nl
 
-typedef long double ld;
 typedef long long ll;
+typedef long double ld;
 typedef vector<ll> vll;
 typedef pair<int,int> pii;
 typedef pair<ll, ll> pll;
@@ -54,71 +54,57 @@ const ll INFF = 1e18;
  
  
 //DONT OVERTHINKKK 
+
+//BASIC EULERIAN PATH algorithm in Directed Graph
+
 const int mxN = 2e5 + 5;
-
-class segTree{
-public:
-  int size = 1;
-  vector<ll> sum_tree;
-  vector<ll> min_tree;
-  segTree(int n){
-    while(size < n) size*= 2;
-    sum_tree.resize(2*size, 0);
-    min_tree.resize(2*size, 0);
+vector<vector<int>> adj;
+vector<int> path;
+vector<int> in, out;
+ 
+void dfs(int u){
+  while(!adj[u].empty()){
+    int v = adj[u].back();
+    adj[u].pop_back();
+    dfs(v);
   }
-
-  void update(int l, int r, int v, int node, int low, int high){
-
-    if(low>=r || high<=l) return;
-    if(low>=l && high<=r){
-      sum_tree[node] += v;
-      min_tree[node] += v;
-      return;
-    }
-    int mid = (low + high)>>1;
-    update(l, r, v, 2*node+1, low, mid);
-    update(l, r, v, 2*node+2, mid, high);
-    min_tree[node] = min(min_tree[2*node+1], min_tree[2*node+2]) + sum_tree[node];
-  }
-  void update(int l, int r, int v){
-    update(l, r, v, 0, 0, size);
-  }
-  //change this to your ques requirement
-  ll calc(int l, int r, int node, int low, int high){
-
-    if(low>=r || high<=l) return INFF;
-    if(low>=l && high<=r){
-      return min_tree[node];
-    }
-    int mid = (low + high)>>1;
-    ll left = calc(l, r, 2*node+1, low, mid);
-    ll right = calc(l, r, 2*node+2, mid, high);
-
-    return min(left, right) + sum_tree[node];
-  } 
-  ll calc(int l, int r){
-    return calc(l, r, 0, 0, size);
-  }
-};
+  path.push_back(u);
+}
 void solve(){
   int n, m;
   cin >> n >> m;
-  segTree ST(n);
-  while(m--){
-    int op; cin >> op;
-    if(op == 1){
-      int l, r, v;
-      cin >> l >> r >> v;
-      ST.update(l, r, v);
-    }
-    else if(op == 2){
-      int l, r;
-      cin >> l >> r;
-      cout << ST.calc(l, r) << nl;
+  adj.resize(n);
+  in.assign(n, 0), out.assign(n, 0);
+
+  for(int i=0; i<m; i++){
+    int u, v;
+    cin >> u >> v;
+    u--, v--;
+    adj[u].push_back(v);
+    in[v] ++ , out[u] ++ ;
+  }
+  bool flag = true;
+  for(int i=1; i<n-1; i++){
+    if(in[i] != out[i]){
+      flag = false; break;
     }
   }
-}
+  if(out[0] != in[0] + 1 || out[n-1] != in[n-1] - 1 || flag==false){
+    cout << "IMPOSSIBLE" << nl;
+    return;
+  }
   
+  dfs(0);
+
+  reverse(all(path));
+  if((int)path.size() != m+1 || path.back() != n-1){
+    cout << "IMPOSSIBLE" << nl;
+  }
+  else{
+    for(auto u: path) cout << u+1 << " ";
+    cout << nl;
+  }
+}
 int main() {
   ios_base::sync_with_stdio(false);
   cin.tie(0);

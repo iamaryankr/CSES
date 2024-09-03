@@ -51,15 +51,17 @@ void solve(){
     vi a(n);
     for(int i=0; i<n; i++) cin >> a[i];
 
-    vector<int> dp(x+1, 0);
+    
+    vi dp(x+1, 0);
     dp[0] = 1;
 
-    for(int sum=1; sum<=x; sum++){
-        for(int i=0; i<n; i++){
-            if(sum >= a[i]) dp[sum] = (dp[sum] + dp[sum-a[i]])%MOD;
+    for(int sum = 1; sum <= x; sum ++){
+        for(auto coin: a){
+        if(sum >= coin) dp[sum] = (dp[sum] + dp[sum - coin])%MOD;
         }
     }
-    cout << (dp[x]) << nl ;
+
+    cout << dp[x] << nl;
 }
    
 int main() {

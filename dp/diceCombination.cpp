@@ -48,17 +48,17 @@ const ll INFF = 1e18;
 void solve(){
     int n;
     cin >> n;
-    vll dp(n+1, 0);
 
-    dp[0] = 1, dp[1] = 1;
     
-    for(int i=2; i<=n; i++){
-        for(int d=1; d<=6; d++){
-            if(i>=d) dp[i] = (dp[i] + dp[i-d])%MOD;
+    vector<int> dp(n+1, 0);
+    dp[1] = 1, dp[0] = 1;
+    
+    for(int sum = 2; sum <= n; sum ++){
+        for(int coin = 1; coin <= 6; coin ++){
+        if(sum >= coin) dp[sum] = (dp[sum] + dp[sum - coin])%MOD;
         }
     }
-
-    cout << dp[n]%MOD << nl;
+    cout << dp[n] << nl;
 }
    
 int main() {

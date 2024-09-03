@@ -34,26 +34,26 @@ int delrow[] = {-1, 0, 1, 0};
 int delcol[] = {0, 1, 0, -1};
 const string path_grid = "URDL";
 bool valid(int i, int j, int n, int m) {return i>=0 && i<n && j<m && j>=0;}
-
+ 
 const int MOD = 1e9+7;
 const int INF = 1e9;
 const ll INFF = 1e18;
-
+ 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //try thinking Binary search(on ans), Bit manipulation, Dp
 //jee standard Maths, greedy, Bfs, Dfs, 2 pointers, bitmask
 //sliding window
-
-
+ 
+ 
 //DONT OVERTHINKKK//
-
-
+ 
+ 
 void solve(){
     int n, m;
     cin >> n >> m;
     vector<string> a(n);
     for(int i=0; i<n; i++) cin >> a[i];
-
+ 
     //bfs for monsters
     queue<pii> qm;
     vector<vi> dism(n, vi(m, INF));
@@ -71,7 +71,7 @@ void solve(){
         int row = qm.front().first;
         int col = qm.front().second;
         qm.pop();
-
+ 
         for(int i=0; i<4; i++){
             int nrow = row + delrow[i];
             int ncol = col + delcol[i];
@@ -82,7 +82,7 @@ void solve(){
             }
         }
     }
-
+ 
     //bfs for 'A'
     queue<pii> qa;
     vector<vi> disa(n, vi(m, INF));
@@ -101,12 +101,12 @@ void solve(){
             }
         }
     }
-
+ 
     while(!qa.empty()){
         int row = qa.front().first;
         int col = qa.front().second;
         qa.pop();
-
+ 
         for(int i=0; i<4; i++){
             int nrow = row + delrow[i];
             int ncol = col + delcol[i];
@@ -119,7 +119,6 @@ void solve(){
         }
     }
     bool flag = false; // is possible reaching end
-    vector<pii> res;
     int endRow = -1, endCol = -1;
     for(int i=0; i<n; i++){
         for(int j=0; j<m; j++){
@@ -127,12 +126,6 @@ void solve(){
                 if(disa[i][j] < dism[i][j]){
                     flag = true;
                     endRow = i, endCol = j;
-                    pii temp = {i, j};
-                    while(prev[i][j] != temp){
-                        res.push_back(temp);
-                        temp = prev[i][j];
-                    }
-                    res.push_back(temp);
                     break;
                 }
             }

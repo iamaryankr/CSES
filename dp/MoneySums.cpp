@@ -48,37 +48,38 @@ const ll INFF = 1e18;
  
 //DONT OVERTHINKKK 
 
-const int mxN = 1e5+1;
-vector<int> dp(mxN, 0);
+const int mxN = 1e5 + 2;
+bool dp[mxN];
 
 void solve(){
   int n;
   cin >> n;
   vi a(n);
-  int sum = 0;
-  for(int i=0; i<n; i++) {
-    cin >> a[i];
-    sum += a[i];
-  }
-  dp[0] = 1;
-  for(int i=0; i<n; i++){
-    for(int x=sum; x>=0; x--){
-      if(x>=a[i]) dp[x] |= dp[x-a[i]];
+  for(int i=0; i<n; i++) cin >> a[i];
+
+  ll sum = accumulate(all(a), 0LL);
+  memset(dp, false, sizeof(dp));
+  dp[0] = true;
+
+  for(auto ele : a){
+    for(int x = sum; x >= 0; x--){
+      if(x >= ele) dp[x] = (dp[x] | dp[x - ele]);
     }
+  }
+  
+  vi ans;
+  for(int x = 1; x <= sum; x++){
+    if(dp[x]) ans.push_back(x);
   }
 
-  vector<int> ans;
-  for(int i=1; i<=sum; i++){
-    if(dp[i]==true) {
-      ans.push_back(i);
-    }
-  }
-  cout << ans.size() << nl;
-  for(auto it: ans) cout << it << " ";
+  cout << int(ans.size()) << nl;
+  sort(all(ans));
+  for(auto it: ans) cout << it << " " ;
   cout << nl;
 }
+
   
-signed main() {
+int main() {
   ios_base::sync_with_stdio(false);
   cin.tie(0);
   cout.tie(0);

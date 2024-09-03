@@ -55,7 +55,7 @@ void solve(){
 		for (int j = 0; j < n; j++) {
 			char c;
 			cin >> c;
-			a[i + 1][j + 1] += c == '*';
+			a[i+1][j+1] += (c == '*');
 		}
 	}
 	// build the prefix sum array

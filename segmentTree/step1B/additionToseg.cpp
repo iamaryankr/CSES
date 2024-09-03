@@ -34,46 +34,46 @@ const int N = 1e9;
 
 class segTree {
 public:
-    int size = 1;
-    vector<ll> tree;
+  int size = 1;
+  vector<ll> tree;
 
-    segTree(int n) {
-        while (size < n) {
-            size *= 2;
-        }
-        tree.resize(2 * size);
-    }
-
-    void add(int x, int low, int high, int l, int r, int v) {
-      if (low >= r || high <= l) return ;
-      if (low >= l && high <= r){
-        tree[x] += v;
-        return;
+  segTree(int n) {
+      while (size < n) {
+          size *= 2;
       }
+      tree.resize(2 * size);
+  }
 
-      int mid = (low + high) / 2;
-      add(2*x + 1, low, mid, l, r, v);
-      add(2*x + 2, mid, high, l, r, v);
+  void add(int x, int low, int high, int l, int r, int v) {
+    if (low >= r || high <= l) return ;
+    if (low >= l && high <= r){
+      tree[x] += v;
+      return;
     }
 
-    void add(int l, int r, int v) {
-      add(0, 0, size, l, r, v);
-    }
+    int mid = (low + high)>>1;
+    add(2*x + 1, low, mid, l, r, v);
+    add(2*x + 2, mid, high, l, r, v);
+  }
+
+  void add(int l, int r, int v) {
+    add(0, 0, size, l, r, v);
+  }
 
 
-    ll get(int i, int x, int low, int high){
-      if(high-low == 1) return tree[x];
-      
-      int mid = (low + high) / 2;
-      ll res ;
-      if (i < mid) res = get(i, 2*x + 1, low, mid);
-      else res = get(i, 2*x + 2, mid, high);
+  ll get(int i, int x, int low, int high){
+    if(high-low == 1) return tree[x];
+    
+    int mid = (low + high)>>1;
+    ll res ;
+    if (i < mid) res = get(i, 2*x + 1, low, mid);
+    else res = get(i, 2*x + 2, mid, high);
 
-      return res + tree[x];
-    }
-    ll get(int i){
-      return get(i, 0, 0, size);
-    }
+    return res + tree[x];
+  }
+  ll get(int i){
+    return get(i, 0, 0, size);
+  }
 };
 
 void solve() {

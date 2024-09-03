@@ -51,8 +51,6 @@ public:
     int size = 1;
     vector<ll> multtree;
     vector<ll> sumtree;
-
-
     void build(ll x, ll low, ll high){
       if(high-low==1) {
         sumtree[x] =  1;

@@ -1,6 +1,6 @@
 //iamaryankr
 #include<bits/stdc++.h>
-using namespace std;
+using namespace std; 
 
 #define pb push_back
 #define pob pop_back
@@ -16,8 +16,8 @@ using namespace std;
 #define yes cout<<"YES"<< nl
 #define no cout<<"NO"<< nl
 
-typedef long double ld;
 typedef long long ll;
+typedef long double ld;
 typedef vector<ll> vll;
 typedef pair<int,int> pii;
 typedef pair<ll, ll> pll;
@@ -56,54 +56,83 @@ const ll INFF = 1e18;
 //DONT OVERTHINKKK 
 const int mxN = 2e5 + 5;
 
+
 class segTree{
 public:
   int size = 1;
-  vector<ll> sum_tree;
-  vector<ll> min_tree;
+  int no_operation = 0;
+  vector<int> values; //storing the min
+  vector<int> lazy;
   segTree(int n){
     while(size < n) size*= 2;
-    sum_tree.resize(2*size, 0);
-    min_tree.resize(2*size, 0);
+    values.resize(2*size, 0); 
+    lazy.resize(2*size, 0);
   }
 
+  int operation(int a, int b){
+    if(b == no_operation) return a;
+    return (a | b);
+  }
+  void applyop(int &a, int b){
+    a = operation(a, b);
+  }
+  int calc_op(int a, int b){
+   return (a & b);
+  }
+
+  void propogate(int node, int low, int high){
+    if(lazy[node] == no_operation) return;
+    if(low + 1 != high) {
+      int mid = (low + high) >> 1;
+      applyop(lazy[2*node+1], lazy[node]);
+      applyop(lazy[2*node+2], lazy[node]);
+    }
+    applyop(values[node], lazy[node]); //
+    lazy[node] = no_operation;
+  }
+  
   void update(int l, int r, int v, int node, int low, int high){
+    propogate(node, low, high);
 
     if(low>=r || high<=l) return;
     if(low>=l && high<=r){
-      sum_tree[node] += v;
-      min_tree[node] += v;
+      applyop(lazy[node], v);
+      propogate(node, low, high);
       return;
     }
     int mid = (low + high)>>1;
     update(l, r, v, 2*node+1, low, mid);
     update(l, r, v, 2*node+2, mid, high);
-    min_tree[node] = min(min_tree[2*node+1], min_tree[2*node+2]) + sum_tree[node];
+    
+    values[node] = calc_op(values[2*node+1] , values[2*node+2]);
   }
   void update(int l, int r, int v){
     update(l, r, v, 0, 0, size);
   }
   //change this to your ques requirement
-  ll calc(int l, int r, int node, int low, int high){
+  int calc(int l, int r, int node, int low, int high){
+    propogate(node, low, high);
 
-    if(low>=r || high<=l) return INFF;
+    if(low>=r || high<=l) return -1;
     if(low>=l && high<=r){
-      return min_tree[node];
+      return values[node];
     }
     int mid = (low + high)>>1;
-    ll left = calc(l, r, 2*node+1, low, mid);
-    ll right = calc(l, r, 2*node+2, mid, high);
+    int left = calc(l, r, 2*node+1, low, mid);
+    int right = calc(l, r, 2*node+2, mid, high);
 
-    return min(left, right) + sum_tree[node];
+    return calc_op(left, right);
   } 
-  ll calc(int l, int r){
+  int calc(int l, int r){
     return calc(l, r, 0, 0, size);
   }
 };
-void solve(){
+void solve(){ 
   int n, m;
   cin >> n >> m;
   segTree ST(n);
+  for(int i=0; i<n; i++) ST.update(i, i, 0);
+
   while(m--){
     int op; cin >> op;
     if(op == 1){

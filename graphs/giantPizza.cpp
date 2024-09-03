@@ -1,6 +1,6 @@
 //iamaryankr
 #include<bits/stdc++.h>
-using namespace std;
+using namespace std; 
 
 #define pb push_back
 #define pob pop_back
@@ -16,8 +16,8 @@ using namespace std;
 #define yes cout<<"YES"<< nl
 #define no cout<<"NO"<< nl
 
-typedef long double ld;
 typedef long long ll;
+typedef long double ld;
 typedef vector<ll> vll;
 typedef pair<int,int> pii;
 typedef pair<ll, ll> pll;
@@ -55,68 +55,77 @@ const ll INFF = 1e18;
  
 //DONT OVERTHINKKK 
 const int mxN = 2e5 + 5;
+vector<vector<int>> adj(mxN), radj(mxN);
+vector<int> kingdom(mxN);
+vector<int> vis;
+vector<int> topo;
 
-class segTree{
-public:
-  int size = 1;
-  vector<ll> sum_tree;
-  vector<ll> min_tree;
-  segTree(int n){
-    while(size < n) size*= 2;
-    sum_tree.resize(2*size, 0);
-    min_tree.resize(2*size, 0);
+
+//2 - SAT problem
+
+//fill the toposort 
+void dfs1(int u){
+  vis[u] = 1;
+  for(auto v: adj[u]){
+    if(!vis[v]) dfs1(v);
   }
+  topo.push_back(u);
+}
 
-  void update(int l, int r, int v, int node, int low, int high){
-
-    if(low>=r || high<=l) return;
-    if(low>=l && high<=r){
-      sum_tree[node] += v;
-      min_tree[node] += v;
-      return;
-    }
-    int mid = (low + high)>>1;
-    update(l, r, v, 2*node+1, low, mid);
-    update(l, r, v, 2*node+2, mid, high);
-    min_tree[node] = min(min_tree[2*node+1], min_tree[2*node+2]) + sum_tree[node];
+//mark the kingdoms(scc)
+void dfs2(int u, int& cnt){
+  vis[u] = 1;
+  kingdom[u] = cnt;
+  for(auto v: radj[u]){
+    if(!vis[v]) dfs2(v, cnt);
   }
-  void update(int l, int r, int v){
-    update(l, r, v, 0, 0, size);
-  }
-  //change this to your ques requirement
-  ll calc(int l, int r, int node, int low, int high){
-
-    if(low>=r || high<=l) return INFF;
-    if(low>=l && high<=r){
-      return min_tree[node];
-    }
-    int mid = (low + high)>>1;
-    ll left = calc(l, r, 2*node+1, low, mid);
-    ll right = calc(l, r, 2*node+2, mid, high);
-
-    return min(left, right) + sum_tree[node];
-  } 
-  ll calc(int l, int r){
-    return calc(l, r, 0, 0, size);
-  }
-};
-void solve(){
+}
+void solve(){ 
   int n, m;
   cin >> n >> m;
-  segTree ST(n);
-  while(m--){
-    int op; cin >> op;
-    if(op == 1){
-      int l, r, v;
-      cin >> l >> r >> v;
-      ST.update(l, r, v);
-    }
-    else if(op == 2){
-      int l, r;
-      cin >> l >> r;
-      cout << ST.calc(l, r) << nl;
+  //build the graph from conjecture
+  for(int i=0; i<n; i++){
+    char s1, s2;
+    int x, y;
+    cin >> s1 >> x >> s2 >> y;
+    if(s1 == '-') x = 2*m + 1 - x;
+    if(s2 == '-') y = 2*m + 1 - y;
+    adj[2*m + 1 - x].push_back(y);
+    adj[2*m + 1 - y].push_back(x);
+    radj[x].push_back(2*m + 1 - y);
+    radj[y].push_back(2*m + 1 - x);
+  }
+
+  vis.assign(2*m+1, 0);
+  for(int i=1; i<=2*m; i++){
+    if(!vis[i]) dfs1(i);
+  }
+  
+  reverse(all(topo));
+  vis.clear();
+  vis.assign(2*m+1, 0);
+  int cnt = 0;
+
+  for(auto u: topo){
+    if(!vis[u]){
+      cnt ++ ;
+      dfs2(u, cnt);
     }
   }
+  
+  //finally print the result
+  vector<int> res(m+1);
+  for(int i=1; i<=m; i++){
+    if(kingdom[i] == kingdom[2*m + 1 - i]){
+      cout << "IMPOSSIBLE" << nl;
+      return;
+    }
+    res[i] = (kingdom[i] > kingdom[2*m + 1 - i]);
+  }
+  for(int i=1; i<=m; i++){
+    cout << (res[i] ? '+' : '-') << " ";
+  }
+  cout << nl;
 }
   
 int main() {

@@ -56,65 +56,62 @@ const ll INFF = 1e18;
 //DONT OVERTHINKKK 
 const int mxN = 2e5 + 5;
 
-class segTree{
+class fenwick{
 public:
-  int size = 1;
-  vector<ll> sum_tree;
-  vector<ll> min_tree;
-  segTree(int n){
-    while(size < n) size*= 2;
-    sum_tree.resize(2*size, 0);
-    min_tree.resize(2*size, 0);
+  int n;
+  vector<ll> bit;
+  fenwick(int n){
+    this->n = n + 1;
+    bit.assign(n+2, 0);
   }
-
-  void update(int l, int r, int v, int node, int low, int high){
-
-    if(low>=r || high<=l) return;
-    if(low>=l && high<=r){
-      sum_tree[node] += v;
-      min_tree[node] += v;
-      return;
+  void build(vector<int> &a){
+    for(int i=0; i<(int)a.size(); i++){
+      update(i+1, a[i]);
+      update(i+2, -a[i]);
     }
-    int mid = (low + high)>>1;
-    update(l, r, v, 2*node+1, low, mid);
-    update(l, r, v, 2*node+2, mid, high);
-    min_tree[node] = min(min_tree[2*node+1], min_tree[2*node+2]) + sum_tree[node];
   }
-  void update(int l, int r, int v){
-    update(l, r, v, 0, 0, size);
-  }
-  //change this to your ques requirement
-  ll calc(int l, int r, int node, int low, int high){
-
-    if(low>=r || high<=l) return INFF;
-    if(low>=l && high<=r){
-      return min_tree[node];
+  void update(int ind, int val){
+    while(ind <= n){
+      bit[ind] += val;
+      ind += (ind & -ind);
     }
-    int mid = (low + high)>>1;
-    ll left = calc(l, r, 2*node+1, low, mid);
-    ll right = calc(l, r, 2*node+2, mid, high);
-
-    return min(left, right) + sum_tree[node];
-  } 
-  ll calc(int l, int r){
-    return calc(l, r, 0, 0, size);
+  }
+  void range_update(int l, int r, int val){
+    update(l, val);
+    update(r+1, -val);
+  }
+  ll query(int ind){
+    ll ans = 0;
+    while(ind > 0){
+      ans += bit[ind];
+      ind -= (ind & -ind);
+    }
+    return ans;
+  }
+  ll sum(int l, int r){
+    return query(r)-query(l-1);
   }
 };
 void solve(){
   int n, m;
   cin >> n >> m;
-  segTree ST(n);
+  vi a(n);
+  for(int i=0; i<n; i++) cin >> a[i];
+  fenwick BIT(n);
+  BIT.build(a);
+
   while(m--){
-    int op; cin >> op;
+    int op;
+    cin >> op;
     if(op == 1){
       int l, r, v;
       cin >> l >> r >> v;
-      ST.update(l, r, v);
+      BIT.range_update(l, r, v);
     }
     else if(op == 2){
-      int l, r;
-      cin >> l >> r;
-      cout << ST.calc(l, r) << nl;
+      int i;
+      cin >> i;
+      cout << BIT.query(i) << nl;
     }
   }
 }

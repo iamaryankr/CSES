@@ -44,11 +44,12 @@ void solve(){
     vector<int> dp(x+1, 0);
     dp[0] = 1;
 
-    for(int i=0; i<n; i++){
-        for(int sum=0; sum<=x; sum++){
-            if(sum >= a[i]) dp[sum] = (dp[sum] + dp[sum-a[i]])%MOD;
-        }
+    for(auto coin: a){
+        for(int sum = 1; sum <= x; sum ++){
+            if(sum >= coin) dp[sum] = (dp[sum] + dp[sum - coin])%MOD;
+            }
     }
+
     cout << (dp[x]) << nl ;
 }
 
