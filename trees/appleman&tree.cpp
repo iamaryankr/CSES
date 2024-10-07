@@ -91,36 +91,86 @@ const ll INFF = 1e18;
 //-------------------------------------main_code-------------------------------------------------------------------------------------------------------------------------------------------------------
 //WRITE STUFF..dont mindSolve
 
-void solve(){
-	int n, q;
-	cin >> n >> q;
-	vector<string> s(n);
-	for(int i=0; i<n; i++) cin >> s[i];
+const int mxN = 1e5 + 2;
+vector<int> adj[mxN];
+vector<bool> black(mxN);
+ll dp_black[mxN], dp_white[mxN];
 
-	vector<vector<int>> a(n + 1, vector<int> (n + 1));
-	for(int i=0; i<n; i++){
-		for(int j=0; j<n; j++){
-			a[i+1][j+1] = (s[i][j] == '*');
-		}
-	}
-	vector<vector<int>> pref(n+1, vector<int> (n+1, 0));
-	for(int i=1; i<=n; i++){
-		for(int j=1; j<=n; j++){
-			pref[i][j] = pref[i-1][j] + pref[i][j-1] + a[i][j] - pref[i-1][j-1];
-		}
-	}
+void dfs(int u, int par){
+  for(auto v: adj[u]){
+    if(v != par) dfs(v, u);
+  }
 
-	while(q--){
-		int row1, col1, row2, col2;
-		cin >> row1 >> col1 >> row2 >> col2 ;
-		int ans = pref[row2][col2];
-		ans -= pref[row1 - 1][col2];
-		ans -= pref[row2][col1 - 1];
-		ans += pref[row1 - 1][col1 - 1];
-		cout << ans << nl;
-	}
+  if(black[u]){
+    dp_white[u] = 0;
+    ll blacks = 1;
+    for(auto v: adj[u]){
+      if(v != par){
+        blacks = (blacks*(dp_white[v] + dp_black[v]))%MOD;
+      }
+    }
+    dp_black[u] = blacks;
+  }
+  else{
+    vector<ll> pref, suff, blacknodes, whitenodes;
+    for(auto v: adj[u]){
+      if(v != par){
+        blacknodes.push_back(dp_black[v]);
+        whitenodes.push_back(dp_white[v]);
+      }
+    }
+    if(whitenodes.empty()){
+      dp_white[u] = 1;
+      dp_black[u] = 0;
+      return;
+    }
+    pref.push_back(whitenodes[0]  + blacknodes[0]);
+    for(int i=1; i<int(whitenodes.size()); i++){
+      pref.push_back((1LL*pref[i-1]*(blacknodes[i] + whitenodes[i]))%MOD);
+    }
+    suff = vector<ll> (whitenodes.size(), 0);
+    suff[whitenodes.size() - 1] = (blacknodes.back() + whitenodes.back());
+    for(int i=int(whitenodes.size())-2; i>=0; i--){
+      suff[i] = (1LL*suff[i+1]*(blacknodes[i] + whitenodes[i])%MOD);
+    }
+    dp_white[u] = pref.back();
+    dp_black[u] = 0;
+
+    int cno = 0;
+    for(auto v: adj[u]){
+      if(v == par) continue;
+      ll left = (cno == 0 ? 1 : pref[cno-1]);
+      ll right = (cno == whitenodes.size()-1 ? 1 : suff[cno+1]);
+      dp_black[u] = (dp_black[u] +(1LL*left*right%MOD)*dp_black[v])%MOD;
+      cno ++;
+    }
+  }
 }
-   
+void solve(){
+  int n;
+  cin >> n;
+  for(int i=0; i<n-1; i++){
+    int p;
+    cin >> p;
+    adj[i+1].push_back(p);
+    adj[p].push_back(i+1);
+  }
+  for(int i=0; i<n; i++){
+    int isblack;
+    cin >> isblack;
+    black[i] = isblack;
+  }
+
+  dfs(0, -1); 
+  cout << dp_black[0] % MOD << nl;
+}
+
+//WRITE STUFF..dont mindSolve
+//-------------------------------------main_code-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 int main(){
   #ifndef ONLINE_JUDGE
     freopen("Error.txt", "w", stderr);

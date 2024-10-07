@@ -89,7 +89,16 @@ void preprocess(int root){
     up.assign(n, vector<int> (l+1, -1));
     dfs(root, root);
 }
-
+int getKthAncestor(int node, int k) {
+    int curr = node;
+    for(int i=0; i<=l; i++){
+        if(k&(1<<i)){
+            curr = up[curr][i];
+            if(curr==-1) return -1;
+        }
+    }
+    return curr;
+}
 void solve(){
 
 }  
@@ -97,7 +106,7 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
     cout.tie(0);
-    cout << setprecision(12) << fixed;
+    // cout << setprecision(12) << fixed;
     int t = 1;
     // cin >> t;
     while (t--) {

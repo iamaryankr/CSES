@@ -91,36 +91,61 @@ const ll INFF = 1e18;
 //-------------------------------------main_code-------------------------------------------------------------------------------------------------------------------------------------------------------
 //WRITE STUFF..dont mindSolve
 
-void solve(){
-	int n, q;
-	cin >> n >> q;
-	vector<string> s(n);
-	for(int i=0; i<n; i++) cin >> s[i];
 
-	vector<vector<int>> a(n + 1, vector<int> (n + 1));
-	for(int i=0; i<n; i++){
-		for(int j=0; j<n; j++){
-			a[i+1][j+1] = (s[i][j] == '*');
-		}
-	}
-	vector<vector<int>> pref(n+1, vector<int> (n+1, 0));
-	for(int i=1; i<=n; i++){
-		for(int j=1; j<=n; j++){
-			pref[i][j] = pref[i-1][j] + pref[i][j-1] + a[i][j] - pref[i-1][j-1];
-		}
-	}
 
-	while(q--){
-		int row1, col1, row2, col2;
-		cin >> row1 >> col1 >> row2 >> col2 ;
-		int ans = pref[row2][col2];
-		ans -= pref[row1 - 1][col2];
-		ans -= pref[row2][col1 - 1];
-		ans += pref[row1 - 1][col1 - 1];
-		cout << ans << nl;
-	}
+
+ll binexp(ll a, ll b, const int mod){
+  if(b == 0) return 1;
+  ll ans = 1;
+  while(b){
+    if(b&1) ans = ans*a%mod;
+    a = a*a%mod;
+    b = b/2;
+  }
+  return ans;
 }
-   
+const int mxN = 1e6 + 2;
+ll fact[mxN];
+ll invfact[mxN];
+
+void calcfact(){
+  fact[0] = 1;
+  for(int i=1; i<=mxN; i++){
+    fact[i] = fact[i-1]*i%MOD;
+  }
+}
+void calcinvfact(){
+  invfact[mxN] = binexp(fact[mxN], MOD-2, MOD);
+  for(int i=mxN; i>=1; i--){
+    invfact[i-1] = invfact[i]*i%MOD;
+  }
+}
+ll nCr(ll n, ll r){
+  if(r > n) return 0;
+  return (fact[n]*invfact[n-r]%MOD)*invfact[r]%MOD;
+}
+
+
+//DEARANGEMENT of n items;
+//n! *(1 - 1/1! + 1/2! - 1/3! + .....);
+void solve(){
+  ll n;
+  cin >> n;
+  ll ans = fact[n]%MOD;
+  ll val = 0;
+  for(int i=2; i<=n; i++){
+    if(i%2 == 0) val = (val + invfact[i])%MOD;
+    else val = (val - invfact[i] + MOD)%MOD;
+  }
+  cout << ans * val % MOD << nl;
+}
+
+//WRITE STUFF..dont mindSolve
+//-------------------------------------main_code-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 int main(){
   #ifndef ONLINE_JUDGE
     freopen("Error.txt", "w", stderr);
@@ -129,11 +154,11 @@ int main(){
     cin.tie(0);
     cout.tie(0);
     auto start1 = high_resolution_clock::now();
+    // precompute();
+    calcfact();
+    calcinvfact();
     int t = 1;
     // cin >> t;
-    // precompute();
-    // calcfact();
-    // calcinvfact();
     // stprc;
     for(int test=0; test<t; test++){
         #ifndef ONLINE_JUDGE
