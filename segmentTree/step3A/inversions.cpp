@@ -48,64 +48,83 @@ const ll INFF = 1e18;
 
 
 //counting inversions --> j < i => a[j] > a[i];
-class segTree{
+class Segtree{
 public:
-  int size=1;
-  vector<int> tree;
-  segTree(int n){
-    while(size < n){
-      size*=2 ;
+  int size = 1;
+  int NA = 0;
+  vector<int> values; 
+  Segtree(int n){
+    while(size < n) size*= 2;
+    values.resize(size*2, 0);
+  }
+  int merge(int a, int b){
+    return a + b;
+  }
+  int make_ele(int a){
+    return a;
+  }
+  void build(int x, int low, int high, vector<int> &a){
+    if(low + 1 == high){
+      if(low < int(a.size())) values[x] = make_ele(a[low]);
+      return ;
     }
-    tree.resize(2*size, 0);
+    int mid = (low + high) >> 1;
+    build(2*x + 1, low, mid, a);
+    build(2*x + 2, mid, high, a);
+    values[x] = merge(values[2*x + 1], values[2*x + 2]);
+  }
+  void build(vector<int> &a){
+    build(0, 0, size, a);
   }
 
-  int merge(int l, int r){
-    return l+r;
-  }
-
-  void update(int x, int low, int high, int i){
-    if(high-low == 1){
-      tree[x] = 1;
-      return; 
+  void set(int x, int low, int high, int i, int v){
+    if(low + 1 == high){
+      values[x] = make_ele(v);
+      return;
     }
-    int mid = (low+high)/2 ;
-    if(i < mid) update(2*x+1, low, mid, i);
-    else update(2*x+2, mid, high, i);
+    int mid = (low + high) >> 1;
+    if(i < mid) set(2*x + 1, low, mid, i, v);
+    else set(2*x + 2, mid, high, i, v);
 
-    tree[x] = merge(tree[2*x+1] , tree[2*x+2]);
+    values[x] = merge(values[2*x + 1], values[2*x + 2]);
   }
-  void update(int i){
-    update(0, 0, size, i);
+  void set(int i, int v){
+    set(0, 0, size, i, v);
   }
 
-  int calc(int x, int low, int high, int l, int r){
-    if(low >= r || high <= l) return 0;
-    if(low >= l && high <= r) return tree[x];
-    int mid = (low+high)/2;
-    int lq = calc(2*x+1, low, mid, l, r);
-    int rq = calc(2*x+2, mid, high, l, r);
-    return merge(lq, rq);
+  //main calculation
+  int calc(int x, int l, int r, int low, int high){
+    if(low >= r || high <= l) return NA;
+    if(low >= l && high <= r) return values[x];
+    int mid = (low + high) >> 1;
+    int left = calc(2*x + 1, l, r, low, mid);
+    int right = calc(2*x + 2, l, r, mid, high);
+    return merge(left, right);
   }
   int calc(int l, int r){
-    return calc(0, 0, size, l, r);
+    return calc(0, l, r, 0, size);
   }
 };
+
 
 void solve(){
   int n;
   cin >> n;
-  segTree st(n+1);
-  vector<int> a(n+1);
-  //make the count array 1 indexed
-  //finding the elements in the freq array which are greater
-  //than the number to the right of freq array;
+  vi a(n + 1);
+  for(int i=1; i<=n; i++) cin >> a[i];
+  vector<int> vis(n + 1, 0);
+  
+  Segtree st(n + 1);
+  st.build(vis);
+
   for(int i=1; i<=n; i++){
-    cin >> a[i];
-    cout << st.calc(a[i], n+1) << " ";
-    st.update(a[i]);
+    cout << st.calc(a[i]+1, n+1) << " ";
+    st.set(a[i], 1);
   }
   cout << nl;
 }
+
+
 int main() {
   ios_base::sync_with_stdio(false);
   cin.tie(0);

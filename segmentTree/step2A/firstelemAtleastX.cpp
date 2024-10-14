@@ -106,19 +106,6 @@ public:
     set(i, v, 0, 0, size);
   }
 
-  // //finding sum(l, r);
-  // int calc(int l, int r, int x, int lx, int rx){
-  //   if(lx >= r || l >= rx) return neutral_element;
-  //   if(lx >= l && rx <= r) return values[x];
-  //   int mid = (lx+rx)/2;
-  //   int lefts = calc(l, r, 2*x+1, lx, mid);
-  //   int rights = calc(l, r, 2*x+2, mid, rx);
-  //   return merge(lefts, rights);
-  // }
-  // int calc(int l, int r){
-  //   return calc(l, r, 0, 0, size);
-  // }
-
   int first_above(int v, int x, int lx, int rx){
     if(values[x] < v) return -1;
     if(rx-lx==1) return lx;

@@ -45,79 +45,83 @@ const ll INFF = 1e18;
 
 
 //DONT OVERTHINKKK//
-struct item{
-    ll mini, cnt;
-};
 
-class segTree{
+
+class Node{
 public:
-    int size = 1;
-    vector<item> values;
-    item neutral_ele = {INFF, 0};
-    //constructor
-    segTree(int n){
-        while(size < n) size*= 2;
-        values.resize(2*size);
-    }
-
-    //merge function for child nodes to get ans for parent
-    item merge(item a, item b){
-        if(a.mini > b.mini) return b;
-        else if(a.mini < b.mini) return a;
-        return {a.mini, a.cnt + b.cnt};
-    }
-
-    //building the tree with the vector a
-    void build(vi &a, int node, int low, int high){
-        if(low+1 == high){
-            if(low < int(a.size())) values[node] = {a[low], 1};
-            return;
-        }
-        int mid = (low+high)>>1;
-        build(a, 2*node+1, low, mid);
-        build(a, 2*node+2, mid, high);
-        values[node] = merge(values[2*node+1], values[2*node+2]);
-    }
-    void build(vi &a){
-        build(a, 0, 0, size);
-    }
-
-    //building the set function
-    void set(int i, int v, int node, int low, int high){
-        if(low+1 == high){
-            values[node] = {v, 1};
-            return;
-        }
-        int mid = (low+high)>>1;
-        if(i<mid) set(i, v, 2*node+1, low, mid);
-        else set(i, v, 2*node+2, mid, high);
-
-        values[node] = merge(values[2*node+1], values[2*node+2]);
-    }
-    void set(int i, int v){
-        set(i, v, 0, 0, size);
-    }
-
-    //finding the minimum in a segment
-    item calc(int l, int r, int node, int low, int high){
-        if(low>=r || high<=l) return neutral_ele;
-        if(low>=l && high<=r) return values[node];
-
-        int mid = (low+high)>>1;
-        item lmin = calc(l, r, 2*node+1, low, mid);
-        item rmin = calc(l, r, 2*node+2, mid, high);
-        return merge(lmin, rmin);
-    }
-    item calc(int l, int r){
-        return calc(l, r, 0, 0, size);
-    }
+  ll mini = INFF, cnt = 0;
 };
+
+class Segtree{
+public:
+  int size = 1;
+  vector<Node> values;
+  Node NA = {INFF, 0};
+  Segtree(int n){
+    while(size < n) size*=2;
+    values.resize(size*2);
+  }
+  Node apply_op(Node a, Node b){
+    if(a.mini > b.mini){
+      return {b.mini, b.cnt};
+    }
+    else if(a.mini == b.mini){
+      return {a.mini, a.cnt + b.cnt};
+    }
+    return {a.mini, a.cnt};
+  }
+  Node make_ele(ll a){
+    return {a, 1};
+  }
+  void build(int x, int low, int high, vector<int> &a){
+    if(low + 1 == high){
+      if(low < int(a.size())) values[x] = make_ele(a[low]);
+      return;
+    }
+    int mid = (low + high)>>1;
+    build(2*x + 1, low, mid, a);
+    build(2*x + 2, mid, high, a);
+    values[x] = apply_op(values[2*x + 1] , values[2*x + 2]);
+  }
+  void build(vector<int> &a){
+    build(0, 0, size, a);
+  }
+
+  void set(int x, int i, int v, int low, int high){
+    if(low + 1 == high){
+      values[x] = make_ele(v);
+      return;
+    }
+    int mid = (low + high)>>1;
+    if(i < mid) set(2*x + 1, i, v, low, mid);
+    else set(2*x + 2, i, v, mid, high);
+
+    values[x] = apply_op(values[2*x + 1] , values[2*x + 2]);
+  }
+  void set(int i, int v){
+    set(0, i, v, 0, size);
+  }
+
+  Node calc(int x, int l, int r, int low, int high){
+    if(low >= r || high <= l) return NA;
+    if(low >= l && high <= r) return values[x];
+    
+    int mid = (low + high) >> 1;
+    Node left = calc(2*x + 1, l, r, low, mid);
+    Node right = calc(2*x + 2, l, r, mid, high);
+    return apply_op(left, right); 
+  }
+  Node calc(int l, int r){
+    return calc(0, l, r, 0, size);
+  }
+};
+
 void solve() {
     int n, m;
     cin >> n >> m;
     vi a(n);
     for(int i=0; i<n ;i++) cin >> a[i];
-    segTree st(n);
+    Segtree st(n);
     st.build(a);
 
     while(m--){

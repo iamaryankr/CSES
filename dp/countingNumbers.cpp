@@ -70,7 +70,7 @@ ll dfs(string &s, int n, int prev, bool leadingZeros, bool tight){
   ll ans = 0;
   for(int dig = lb; dig <= ub; dig ++){
     if(dig == prev && leadingZeros==false) continue;
-    else ans += (dfs(s, n-1, dig, leadingZeros&(dig==0), tight&(dig==ub)));
+    else ans += (dfs(s, n-1, dig, leadingZeros&&(dig==0), tight&&(dig==ub)));
   }
   return dp[n][prev][leadingZeros][tight] = ans;
 }
