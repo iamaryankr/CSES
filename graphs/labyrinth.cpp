@@ -52,74 +52,61 @@ const ll INFF = 1e16;
  
  
 void solve(){
-    int n, m;
-    cin >> n >> m;
-    vector<string> a(n);
-    for (int i = 0; i < n; i++) {
-        cin >> a[i];
+  int n, m;
+  cin >> n >> m;
+  vector<string> grid(n);
+  for(int i=0; i<n; i++) cin >> grid[i];
+
+  vvi vis(n, vi(m, 0));
+  queue<pii> q;
+  pii target;
+  pii start;
+  for(int i=0; i<n; i++){
+    for(int j=0; j<m; j++){
+      if(grid[i][j] == 'A'){
+        start = {i, j};
+        q.push({i, j});
+      }
+      if(grid[i][j] == 'B'){
+        target = {i, j};
+      }
     }
-    int startRow = -1, startCol = -1;
-    int endRow = -1, endCol = -1;
- 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            if (a[i][j] == 'A') {
-                startRow = i;
-                startCol = j;
-            }
-            if (a[i][j] == 'B') {
-                endRow = i;
-                endCol = j;
-            }
+  }
+  vector<vector<pii>> prev(n, vector<pii> (m, {-1, -1}));
+
+  while(!q.empty()){
+    int row = q.front().first, col = q.front().second;
+    q.pop();
+
+    for(int i=0; i<4; i++){
+      int nrow = row + delrow[i];
+      int ncol = col + delcol[i];
+      if(valid(nrow, ncol, n, m) && grid[nrow][ncol] != '#' && !vis[nrow][ncol]){
+        vis[nrow][ncol] = 1;
+        prev[nrow][ncol] = {row, col};
+        q.push({nrow, ncol});
+      }
+    }
+  }
+  if(vis[target.first][target.second] == 0) cout << "NO" << nl;
+  else{
+    cout << "YES" << nl;
+    string ans = "";
+    int currow = target.first, curcol = target.second;
+    while(!(currow == start.first && curcol == start.second)){
+      int prevrow = prev[currow][curcol].first;
+      int prevcol = prev[currow][curcol].second;
+      for(int i=0; i<4; i++){
+        if(currow == prevrow + delrow[i] && curcol == prevcol + delcol[i]){
+          ans.push_back(path_grid[i]);
         }
+      }
+      currow = prevrow, curcol = prevcol;
     }
-    vvi vis(n, vi(m, 0));
-    vector<vector<pii>> prev(n, vector<pii>(m, {-1, -1}));
-    queue<pii> q;
-    vis[startRow][startCol] = 1;
-    q.push({startRow, startCol});
-    
-    while (!q.empty()) {
-        int row = q.front().first;
-        int col = q.front().second;
-        q.pop();
-        for (int i = 0; i < 4; i++) {
-            int nrow = row + delrow[i];
-            int ncol = col + delcol[i];
- 
-            if (valid(nrow, ncol, n, m) && !vis[nrow][ncol] && a[nrow][ncol] != '#') {
-                vis[nrow][ncol] = 1;
-                prev[nrow][ncol] = {row, col};
-                q.push({nrow, ncol});
-            }
-        }
-    }
-    if (!vis[endRow][endCol]) {
-        cout << "NO" << nl;
-    }
-    else {
-        string ans = "";
-        int curRow = endRow, curCol = endCol;
-        while (!(curRow == startRow && curCol == startCol)) {
-            pii p = prev[curRow][curCol];
-            int row = p.first;
-            int col = p.second;
-            for (int i = 0; i < 4; i++) {
-                int nrow = row + delrow[i];
-                int ncol = col + delcol[i];
-                if(curRow == nrow && curCol == ncol) {
-                    ans += (path_grid[i]);
-                    break;
-                }
-            }
-            curRow = row;
-            curCol = col;
-        }
-        cout << "YES" << nl;
-        reverse(all(ans));
-        cout << ans.size() << nl;
-        cout << ans << nl;
-    }
+    reverse(all(ans));
+    cout << int(ans.size()) << nl;
+    cout << ans << nl;
+  }
 }
    
 int main() {

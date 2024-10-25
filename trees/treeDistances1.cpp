@@ -51,64 +51,65 @@ const ll INFF = 1e18;
  
  
 //DONT OVERTHINKKK 
-const int mxN = 2e5 + 1;
 
+
+const int mxN = 2e5 + 5;;
 vector<int> adj[mxN];
 vector<int> depth(mxN);
 vector<int> dp(mxN);
-//dp(i) is the distance of the farthest node from the node i
+//dp(u) is distance of farthest node from u
 
-void depthDfs(int node, int par){
-  depth[node] = 0;
-  for(auto it: adj[node]){
-    if(it != par){
-      depthDfs(it, node);
-      depth[node] = max(depth[node], 1 + depth[it]);
+void depth_dfs(int u, int par){
+  depth[u] = 0;
+  for(auto v: adj[u]){
+    if(v != par){
+      depth_dfs(v, u);
+      make_max(depth[u], depth[v] + 1);
     }
   }
 }
+//dp(u) = max(depth(u), 1 + partial_ans(par/u))
 
-void dfs(int node, int par, int partialans_par){
-  vector<int> prefMax, suffMax;
-  
-  for(auto it: adj[node]){
-    if(it != par){
-      prefMax.push_back(depth[it]);
-      suffMax.push_back(depth[it]);
+void dfs(int u, int par, int par_ans){
+  vector<int> prefmax, suffmax;
+  for(auto v: adj[u]){
+    if(v != par){
+      int childans = depth[v];
+      prefmax.push_back(childans);
+      suffmax.push_back(childans);
     }
   }
-  int n = prefMax.size();
-  for(int i=1; i<n; i++) prefMax[i] = max(prefMax[i], prefMax[i-1]);
-  for(int i=n-2; i>=0; i--) suffMax[i] = max(suffMax[i], suffMax[i+1]);
+  int sz = prefmax.size();
+  for(int i=1; i<sz; i++) make_max(prefmax[i], prefmax[i-1]);
+  for(int i=sz-2; i>=0; i--) make_max(suffmax[i], suffmax[i+1]);
 
   int cno = 0;
-  for(auto it: adj[node]){
-    if(it != par){
-      int leftans = (cno==0 ? -INF : prefMax[cno-1]);
-      int rightans = (cno==n-1 ? -INF : suffMax[cno+1]);
-      int partialans_node = 1 + max({leftans, rightans, partialans_par});
+  for(auto v: adj[u]){
+    if(v != par){
+      int lans = (cno == 0 ? -INF : prefmax[cno-1]);
+      int rans = (cno == sz-1 ? -INF : suffmax[cno+1]);
+      int new_par_ans = 1 + max({lans, rans, par_ans});
 
-      dfs(it, node, partialans_node);
+      dfs(v, u, new_par_ans);
       cno ++;
     }
   }
-  dp[node] = max(depth[node], 1 + partialans_par);
+  dp[u] = max(depth[u], 1 + par_ans);
 }
-
 void solve(){
   int n;
   cin >> n;
-  for(int i=2; i<=n; i++){
+  for(int i=0; i<n-1; i++){
     int u, v;
-    cin >> u >> v;
+    cin >> u >> v; u--, v--;
     adj[u].push_back(v);
     adj[v].push_back(u);
   }
+  depth_dfs(0, -1); //evalutating the depths of each node
+  dfs(0, -1, -1); //calculating from the parents ans including the partial ans
+  //dp(0) == depth(0);
 
-  depthDfs(1, 0);
-  dfs(1, 0, -1);
-
-  for(int i=1; i<=n; i++) cout << dp[i] << " " ;
+  for(int i=0; i<n; i++) cout << dp[i] << " ";
   cout << nl;
 }
   
