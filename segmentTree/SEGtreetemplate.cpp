@@ -6,7 +6,6 @@ typedef vector<int> vi;
 //Point updates and Range Queries
 class Node{
 public:
-    
 };
 class Segtree{
 public:
